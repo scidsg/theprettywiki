@@ -17,7 +17,7 @@ These simple style changes will transform your Wiki experience.
 First, install Mediawiki on your updated server with root access:
 
 ```
-curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/install-mediawiki.sh | bash
 ```
 
 You'll need to reuse your database credentials created during install.
