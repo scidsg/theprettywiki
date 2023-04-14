@@ -1,5 +1,7 @@
 # The Pretty Wiki
 
+![wiki-skin](https://user-images.githubusercontent.com/28545431/232145691-aab88b85-d257-4d1a-92ee-d56301319dac.png)
+
 The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It highlights accessibility guidelines:
 
 - Use a large enough font size for body text so that people can comfortably read. 
@@ -7,7 +9,7 @@ The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It highlights acc
 - Choose a typeface that emphasizes clarity and legibility.
 - https://accessibility.digital.gov/visual-design/typography/
 
-Our paragraphs are easier to read with its max-width set to 640px, font-size 1rem/16pm, and line-height 1.6. Our body typeface uses Atkinson Hyperlegible, a new typeface by the Braille Institute for low-vision readers, and headings use higher contrast type-scales. 
+Our paragraphs are easier to read with its max-width set to 640px, font-size 1rem/16pm, and line-height 1.6, and headings use a higher contrast type-scale. 
 
 These simple style changes will transform your Wiki experience.
 
@@ -24,7 +26,7 @@ You'll need to reuse your database credentials created during install.
 
 ### Step 2 - Enable Your Wiki
  1. Visit your server's IP address or domain name and complete the MediaWiki installation. 
- 2. Download the generated LocalSettings.php file that's generated at the end of the installation process. Open it in a text editor and copy it's contents.
+ 2. Download the LocalSettings.php file that's generated at the end of the installation process. Open it in a text editor and copy it's contents.
  3. Back in the Terminal, create a LocalSettings.php file and paste the downloaded contents:
  
  ```
