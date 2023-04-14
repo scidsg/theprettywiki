@@ -9,7 +9,7 @@ The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It highlights acc
 - Choose a typeface that emphasizes clarity and legibility.
 - https://accessibility.digital.gov/visual-design/typography/
 
-Our paragraphs are easier to read with its max-width set to 640px, font-size 1rem/16pm, and line-height 1.6, and headings use a higher contrast type-scale. 
+Our paragraphs are easier to read with its max-width set to 640px, font-size 1rem/16px, and line-height 1.6. Headings use a higher contrast type-scale, and a few additional stylistic modifications. 
 
 These simple style changes will transform your Wiki experience.
 
