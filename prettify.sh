@@ -166,9 +166,19 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   margin-left: 0;
 }
 
+.vector-search-box-input {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: .25rem;
+  box-shadow: 0px 3px 12px -6px rgba(0,0,0,0.15);
+}
+
 .vector-body h2 {
   font-size: 2rem;
   padding-bottom: .5rem;
+}
+
+.vector-search-box-vue .searchButton {
+  background-size: 1rem;
 }
 
 .vector-body h3 {
