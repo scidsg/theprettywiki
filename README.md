@@ -51,4 +51,5 @@ You can use a Tor onion service to make your wiki available without needing to p
 curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/torify.sh | bash
 ```
 
-Reload your page for your updated WikI!
+Reload your page for your updated Wiki!
+
