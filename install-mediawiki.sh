@@ -29,7 +29,7 @@ sudo a2enmod rewrite
 # Create a MediaWiki Apache configuration file
 sudo bash -c 'cat > /etc/apache2/sites-available/mediawiki.conf << EOL
 <VirtualHost *:80>
-    ServerName mediawiki.local
+    ServerName localhost
     DocumentRoot /var/www/html/mediawiki
 
     <Directory /var/www/html/mediawiki/>
