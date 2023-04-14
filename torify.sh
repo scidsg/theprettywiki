@@ -29,6 +29,7 @@ sudo systemctl restart apache2
 sudo systemctl restart tor
 
 # Retrieve the onion service hostname
+sleep 10
 onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname)
 
 # Display the onion service URL
