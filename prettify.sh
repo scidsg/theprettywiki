@@ -2,6 +2,16 @@
 cd /var/www/html/mediawiki/skins
 cp -r Vector/ Vector-Backup/
 
+# Update Default Skin
+file="/var/www/html/mediawiki/LocalSettings.php"
+backup_file="/var/www/html/mediawiki/LocalSettings.php.bak"
+
+# Create a backup of the original file
+cp "$file" "$backup_file"
+
+# Replace the line in the file
+sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
+
 # Back up current less file
 cd Vector/resources/skins.vector.styles/
 cp skin.less old-skin.less
