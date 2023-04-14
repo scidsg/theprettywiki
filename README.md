@@ -44,7 +44,7 @@ Now, we'll prettify your Wiki! In the terminal, run:
 curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify.sh | bash
 ```
 
-### Step 4 - Make a Hidden Wiki
+### Step 4 (optional) - Make a Hidden Wiki
 You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your wiki private.
 
 ```
