@@ -2,16 +2,6 @@
 cd /var/www/html/mediawiki/skins
 cp -r Vector/ Vector-Backup/
 
-# Update Default Skin
-file="/var/www/html/mediawiki/LocalSettings.php"
-backup_file="/var/www/html/mediawiki/LocalSettings.php.bak"
-
-# Create a backup of the original file
-cp "$file" "$backup_file"
-
-# Replace the line in the file
-sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
-
 # Back up current less file
 cd Vector/resources/skins.vector.styles/
 cp skin.less old-skin.less
@@ -93,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1, h2 {
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.1) !important;
   margin: 2rem 0 1rem 0;
 }
 
@@ -108,10 +98,6 @@ h1, h2 {
   justify-content: flex-end;
 }
 
-.vector-search-box {
-  flex-grow: 0;
-}
-
 .client-js .vector-search-box-vue.vector-search-box-show-thumbnail.vector-search-box-auto-expand-width .vector-search-box-input {
   margin-left: 0;
   width: 100%;
@@ -119,11 +105,11 @@ h1, h2 {
 }
 
 a {
-  color: black;
+  color: #333 !important;
 }
 
 a.extiw:visited, .mw-parser-output a.external:visited {
-  color: black;
+  color: #333;
 }
 
 #mw-content-text a {
@@ -133,6 +119,28 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 .mw-body .firstHeading {
   padding-bottom: 1rem;
   margin-bottom: 0;
+}
+
+.mw-body {
+  padding-top: 3.5rem;
+}
+
+.cdx-search-input--has-end-button {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: .25rem;
+}
+
+.cdx-text-input__input:enabled {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: .25rem;
+}
+
+.cdx-text-input__input:enabled:hover {
+  border-color: rgba(0,0,0,0.1);
+}
+
+.cdx-typeahead-search--show-thumbnail.cdx-typeahead-search--auto-expand-width:not(.cdx-typeahead-search--active) {
+  margin-left: 0;
 }
 
 .vector-body h2 {
@@ -145,7 +153,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 }
 
 .vector-menu-tabs .mw-list-item.selected a, .vector-menu-tabs .mw-list-item.selected a:visited {
-  color: #202122;
+  color: #333;
   border-bottom: 3px solid black;
 }
 
@@ -207,7 +215,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 .vector-menu-portal .vector-menu-heading {
   font-size: .825rem;
   font-weight: bold;
-  color: black;
+  color: #333;
 }
 
 @media only screen and (max-width: 999px) {
