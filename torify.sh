@@ -1,52 +1,36 @@
 #!/bin/bash
 
+# Update the system
+sudo apt update
+sudo apt -y upgrade
+
 # Install Tor
 sudo apt install -y tor
 
-# Configure Tor for onion service
+# Configure Tor to create a new onion service
 sudo bash -c 'cat >> /etc/tor/torrc << EOL
-HiddenServiceDir /var/lib/tor/hidden_service/
-HiddenServicePort 80 127.0.0.1:80
+HiddenServiceDir /var/lib/tor/mediawiki_onion_service/
+HiddenServicePort 80 127.0.0.1:8080
 EOL'
 
-# Restart Tor to apply the configuration
+# Configure Apache to listen on the local IP and the onion service port
+sudo bash -c 'cat >> /etc/apache2/ports.conf << EOL
+Listen 127.0.0.1:8080
+EOL'
+
+# Update MediaWiki Apache configuration file to use the onion service port
+sudo sed -i 's/<VirtualHost *:80>/<VirtualHost 127.0.0.1:8080>/' /etc/apache2/sites-available/mediawiki.conf
+
+# Disable clearnet access to the MediaWiki site
+sudo a2dissite 000-default
+
+# Restart Apache and Tor
+sudo systemctl restart apache2
 sudo systemctl restart tor
 
-# Wait for the onion service to be created
-sleep 10
+# Retrieve the onion service hostname
+onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname)
 
-# Get the onion service address
-onion_address=$(sudo cat /var/lib/tor/hidden_service/hostname)
-
-# Edit mediawiki-onion.conf with the onion address
-sudo bash -c "cat > /etc/nginx/sites-available/mediawiki-onion << EOL
-server {
-    listen 80;
-    server_name ${onion_address};
-
-    root /var/www/html/mediawiki;
-    index index.php;
-
-    location / {
-        try_files \$uri \$uri/ @mediawiki;
-    }
-
-    location @mediawiki {
-        rewrite ^/([^?]*)(?:\?(.*))? /index.php?title=\$1&\$2 last;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
-EOL"
-
-# Enable the mediawiki-onion site and reload the Nginx configuration
-sudo ln -s /etc/nginx/sites-available/mediawiki-onion /etc/nginx/sites-enabled/
-sudo systemctl reload nginx
-
-# Print the onion service address
-echo "Your MediaWiki onion service is available at: ${onion_address}"
+# Display the onion service URL
+echo "Your MediaWiki site is now accessible exclusively as a Tor onion service at the following URL:"
+echo "http://${onion_hostname}"
