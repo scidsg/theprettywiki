@@ -209,13 +209,21 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 }
 
 .vector-menu-portal .vector-menu-content li {
-  margin: .5rem 0;
+  margin: .425rem 0;
 }
 
 .vector-menu-portal .vector-menu-heading {
   font-size: .825rem;
   font-weight: bold;
   color: #333;
+}
+
+.sidebar-toc .sidebar-toc-text {
+  padding: .5rem 0;
+}
+
+.sidebar-toc .sidebar-toc-toggle {
+  top: .25rem;
 }
 
 @media only screen and (max-width: 999px) {
