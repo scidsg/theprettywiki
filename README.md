@@ -45,7 +45,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify
 ```
 
 ### Step 4 (optional) - Make a Hidden Wiki
-You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your wiki private.
+You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your site private.
 
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/torify.sh | bash
