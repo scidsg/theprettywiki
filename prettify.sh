@@ -109,6 +109,18 @@ h1, h2 {
   justify-content: flex-end;
 }
 
+.mw-header .vector-search-box {
+  margin-left: 1.5rem;
+}
+
+.cdx-typeahead-search--show-thumbnail.cdx-typeahead-search--auto-expand-width:not(.cdx-typeahead-search--active) {
+  margin-left: 0;
+}
+
+.client-js .vector-search-box-vue.vector-search-box-show-thumbnail.vector-search-box-auto-expand-width .searchButton {
+  left: 0
+}
+
 .client-js .vector-search-box-vue.vector-search-box-show-thumbnail.vector-search-box-auto-expand-width .vector-search-box-input {
   margin-left: 0;
   width: 100%;
