@@ -22,7 +22,6 @@ onion_address=$(sudo cat /var/lib/tor/hidden_service/hostname)
 sudo bash -c "cat > /etc/apache2/sites-available/mediawiki-onion.conf << EOL
 <VirtualHost *:80>
     ServerName ${onion_address}
-    ServerAlias *.onion
     DocumentRoot /var/www/html/mediawiki
 
     <Directory /var/www/html/mediawiki/>
