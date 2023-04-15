@@ -214,8 +214,13 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   position: absolute;
 }
 
+.sidebar-toc .sidebar-toc-title {
+   font-family: 'Linux Libertine','Georgia','Times',serif;
+   font-size: 1.125rem;
+}
+
 .vector-toc-collapse-button {
-  display: none;
+  display: none !important;
 }
 
 #mw-sidebar-button::before {
