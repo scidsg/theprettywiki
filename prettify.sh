@@ -105,8 +105,8 @@ h1, h2 {
   margin: 1rem 0;
 }
 
-div.gallerytext {
-  font-size: .825rem;
+.vector-body .gallerytext p {
+  font-size: .75rem;
 }
 
 .mw-header-content, .mw-header-aside {
