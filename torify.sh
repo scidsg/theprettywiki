@@ -18,19 +18,21 @@ sudo bash -c 'cat >> /etc/apache2/ports.conf << EOL
 Listen 127.0.0.1:8080
 EOL'
 
-# Update the default Apache configuration file to use the onion service port and point to the MediaWiki installation
-sudo sed -i 's/<VirtualHost *:80>/<VirtualHost 127.0.0.1:8080>/' /etc/apache2/sites-available/000-default.conf
-sudo sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/mediawiki|' /etc/apache2/sites-available/000-default.conf
-sudo bash -c 'cat >> /etc/apache2/sites-available/000-default.conf << EOL
-<Directory /var/www/html/mediawiki/>
-    Options FollowSymLinks
-    AllowOverride All
-    Require all granted
-</Directory>
+# Create a new Apache configuration file for the onion service
+sudo bash -c 'cat > /etc/apache2/sites-available/mediawiki_onion.conf << EOL
+<VirtualHost 127.0.0.1:8080>
+    ServerName localhost
+    DocumentRoot /var/www/html/mediawiki
+    <Directory /var/www/html/mediawiki/>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
 EOL'
 
-# Disable clearnet access to the MediaWiki site
-sudo a2dissite 000-default
+# Enable the onion service configuration and restart Apache
+sudo a2ensite mediawiki_onion
 
 # Restart Apache and Tor
 sudo systemctl restart apache2
