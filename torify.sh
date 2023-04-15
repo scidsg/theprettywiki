@@ -38,7 +38,6 @@ sudo a2ensite mediawiki_onion
 sudo systemctl restart apache2
 sudo systemctl restart tor
 
-# Route network traffic through Tor
 # Install torsocks
 sudo apt install -y torsocks
 
@@ -53,6 +52,7 @@ EOL'
 # Restart the Tor service
 sudo systemctl restart tor
 
+# Route network traffic through Tor
 sudo iptables -t nat -A OUTPUT -p tcp -d 10.0.0.0/8 -j RETURN
 sudo iptables -t nat -A OUTPUT -p tcp -d 172.16.0.0/12 -j RETURN
 sudo iptables -t nat -A OUTPUT -p tcp -d 192.168.0.0/16 -j RETURN
