@@ -238,7 +238,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-radius: .325rem;
   box-shadow: 0 10px 1.5rem -1rem rgba(0,0,0,0.2);
   max-width: fit-content;
-  position: fixed;
+  position: absolute;
   z-index: 2;
   top: 4.5rem;
 }
