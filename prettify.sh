@@ -105,6 +105,10 @@ h1, h2 {
   margin: 1rem 0;
 }
 
+div.gallerytext {
+  font-size: .825rem;
+}
+
 .mw-header-content, .mw-header-aside {
   justify-content: flex-end;
 }
