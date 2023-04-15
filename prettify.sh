@@ -217,6 +217,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 .sidebar-toc .sidebar-toc-title {
    font-family: 'Linux Libertine','Georgia','Times',serif;
    font-size: 1.125rem;
+   color: #333;
 }
 
 .vector-toc-collapse-button {
