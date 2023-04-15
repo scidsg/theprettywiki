@@ -269,6 +269,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   top: .25rem;
 }
 
+.mw-footer {
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
 @media only screen and (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
     position: absolute !important;  
