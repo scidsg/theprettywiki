@@ -42,6 +42,9 @@ sudo systemctl restart tor
 sleep 10
 onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname)
 
+# Update MediaWiki's LocalSettings.php to use the onion hostname
+sudo bash -c "echo -e \"\\\$wgServer = 'http://$onion_hostname';\" >> /var/www/html/mediawiki/LocalSettings.php"
+
 # Display the onion service URL
 echo "Your MediaWiki site is now accessible exclusively as a Tor onion service at the following URL:"
 echo "http://${onion_hostname}"
