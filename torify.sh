@@ -3,7 +3,6 @@
 # Update the system
 sudo apt update
 sudo apt -y upgrade
-sudo apt -y dist-upgrade
 
 # Install Tor
 sudo apt install -y tor
@@ -39,27 +38,6 @@ sudo a2ensite mediawiki_onion
 sudo systemctl restart apache2
 sudo systemctl restart tor
 
-# Install torsocks
-sudo apt install -y torsocks
-
-# Configure Tor for routing all network traffic
-sudo bash -c 'cat >> /etc/tor/torrc << EOL
-VirtualAddrNetworkIPv4 10.192.0.0/10
-AutomapHostsOnResolve 1
-TransPort 9040
-DNSPort 5353
-EOL'
-
-# Restart the Tor service
-sudo systemctl restart tor
-
-# Route network traffic through Tor
-sudo iptables -t nat -A OUTPUT -p tcp -d 10.0.0.0/8 -j RETURN
-sudo iptables -t nat -A OUTPUT -p tcp -d 172.16.0.0/12 -j RETURN
-sudo iptables -t nat -A OUTPUT -p tcp -d 192.168.0.0/16 -j RETURN
-sudo iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to-ports 9040
-sudo iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 5353
-
 # Retrieve the onion service hostname
 sleep 10
 onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname)
@@ -80,7 +58,7 @@ function display_service_status() {
 
     local onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname 2>/dev/null)
     if [[ -n $onion_hostname ]]; then
-        echo "http://${onion_hostname}"
+        echo "Onion address: http://${onion_hostname}"
     else
         echo "Onion address not found."
     fi
@@ -90,7 +68,6 @@ function display_service_status() {
 sleep 5
 display_service_status
 
-# Display status on login
 cat << 'EOL' >> ~/.bashrc
 function display_service_status() {
     local tor_status=$(systemctl is-active tor)
@@ -104,11 +81,10 @@ function display_service_status() {
 
     local onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname 2>/dev/null)
     if [[ -n $onion_hostname ]]; then
-        echo "http://${onion_hostname}"
+        echo "Onion address: http://${onion_hostname}"
     else
         echo "Onion address not found."
     fi
 }
 display_service_status
 EOL
-
