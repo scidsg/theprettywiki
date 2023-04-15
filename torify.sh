@@ -90,4 +90,24 @@ sleep 5
 display_service_status
 
 # Display status on login
-echo 'display_service_status' >> ~/.bashrc
+cat << 'EOL' >> ~/.bashrc
+function display_service_status() {
+    local tor_status=$(systemctl is-active tor)
+    local apache_status=$(systemctl is-active apache2)
+
+    if [[ $tor_status == "active" && $apache_status == "active" ]]; then
+        echo -e "\033[32m●\033[0m The MediaWiki Tor onion service is running."
+    else
+        echo -e "\033[31m●\033[0m The MediaWiki Tor onion service is not running."
+    fi
+
+    local onion_hostname=$(sudo cat /var/lib/tor/mediawiki_onion_service/hostname 2>/dev/null)
+    if [[ -n $onion_hostname ]]; then
+        echo "http://${onion_hostname}"
+    else
+        echo "Onion address not found."
+    fi
+}
+display_service_status
+EOL
+
