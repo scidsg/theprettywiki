@@ -261,6 +261,12 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   color: #333;
 }
 
+.vector-menu-dropdown .vector-menu-content {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: .325rem;
+  box-shadow: 0 10px 1.5rem -1rem rgba(0,0,0,0.2);
+}
+
 .sidebar-toc .sidebar-toc-text {
   padding: .5rem 0;
 }
