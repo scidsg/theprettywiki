@@ -3,6 +3,7 @@
 # Update the system
 sudo apt update
 sudo apt -y upgrade
+sudo apt -y autoremove
 
 # Install Tor
 sudo apt install -y tor
