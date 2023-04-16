@@ -129,6 +129,10 @@ h1, h2 {
   margin: 2rem 0 1rem 0;
 }
 
+.mw-logo-container {
+  max-width: initial !important;
+}
+
 .vector-body p {
   max-width: 640px;
   font-size: 1rem;
@@ -343,12 +347,12 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   }
 
   .vector-below-page-title #vector-toc-collapsed-button {
-    display: none;
+    display: none !important;
   }
 
   #vector-toc-collapsed-button {
-    float: right;
-    transform: translateY(50%);
+    float: right !important;
+    transform: translateY(50%) !important;
   }
 }
 EOL
