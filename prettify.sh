@@ -230,6 +230,13 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   font-size: 1.5rem;
 }
 
+.vector-body h3, 
+.vector-body h4, 
+.vector-body h5, 
+.vector-body h6 {
+  line-height: 1.2;
+}
+
 .vector-menu-tabs .mw-list-item.selected a, .vector-menu-tabs .mw-list-item.selected a:visited {
   color: #333;
   border-bottom: 3px solid black;
