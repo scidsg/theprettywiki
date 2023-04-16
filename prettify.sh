@@ -1,3 +1,11 @@
+# Download Science & Design brand resources
+cd /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/
+mkdir custom
+cd custom/
+git clone https://github.com/scidsg/brand-resources.git
+mv brand-resources/fonts  .
+rm -r brand-resources/
+
 # Activate New Skin
 file="/var/www/html/mediawiki/LocalSettings.php"
 backup_file="/var/www/html/mediawiki/LocalSettings.php.bak"
@@ -62,17 +70,34 @@ cat > skin.less << EOL
 @import './layouts/gradeC.less';
 EOL
 
-# Create custom CSS
-mkdir custom
 # Create a systemd service
 cat > custom/custom.less << EOL
+@font-face {
+  font-family: "Sans";
+  src: url("custom/fonts/sans/Atkinson-Hyperlegible-Regular.woff2") format("woff2"),
+       url("custom/fonts/sans/Atkinson-Hyperlegible-Regular.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Sans Bold";
+  src: url("custom/fonts/sans/Atkinson-Hyperlegible-Bold.woff2") format("woff2"),
+       url("custom/fonts/sans/Atkinson-Hyperlegible-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Serif";
+  src: url("custom/fonts/serif/Merriweather-Regular.woff2") format("woff2"),
+       url("custom/fonts/serif/Merriweather-Regular.woff") format("woff");
+}
+
 body {
   background-color: white;
   color: #333;
+  font-family: 'Sans', sans-serif;
 }
 
 .mw-logo-wordmark {
-  font-family: 'Linux Libertine','Georgia','Times',serif;
+  font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
   font-size: 1.25rem;
   font-weight: normal;
 }
@@ -93,6 +118,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #333;
 }
 
+.mw-body h1, .mw-body-content h1, .mw-body-content h2 {
+  font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
+}
+
 h1, h2 {
   border-bottom: 1px solid rgba(0,0,0,0.1) !important;
   margin: 2rem 0 1rem 0;
@@ -103,6 +132,18 @@ h1, h2 {
   font-size: 1rem;
   line-height: 1.6;
   margin: 1rem 0;
+}
+
+.vector-body {
+  font-size: 1rem;
+}
+
+.mw-content-ltr ul {
+  margin: 1rem 0 1rem 1.3rem !important;
+}
+
+.vector-menu-tabs .mw-list-item > a {
+  font-size: .875rem;
 }
 
 .vector-body .gallerytext p {
@@ -219,7 +260,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 }
 
 .sidebar-toc .sidebar-toc-title {
-   font-family: 'Linux Libertine','Georgia','Times',serif;
+   font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
    font-size: 1.125rem;
    color: #333;
 }
