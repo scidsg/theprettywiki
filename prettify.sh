@@ -1,3 +1,5 @@
+#!/bin/bash 
+
 # Download Science & Design brand resources
 cd /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/
 mkdir custom
