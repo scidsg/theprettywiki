@@ -448,6 +448,10 @@ body.page-Main_Page .mw-body-content {
   margin-top: 0;
 }
 
+.mw-header #mw-sidebar-button {
+  display: none;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   #custom-homepage .columnGroup {

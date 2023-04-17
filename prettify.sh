@@ -190,6 +190,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   text-decoration: underline;
 }
 
+.mw-header #mw-sidebar-button {
+  display: none;
+}
+
 .mw-body .firstHeading {
   padding-bottom: 1rem;
   margin-bottom: 0;
@@ -331,6 +335,12 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
 .mw-footer {
   border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+@media (max-width: 1199px) {
+  .mw-header .mw-header-content #p-search.vector-search-box {
+     margin-left: 1.5rem !important;
+  }
 }
 
 @media only screen and (max-width: 999px) {
