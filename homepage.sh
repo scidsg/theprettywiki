@@ -19,12 +19,8 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
         $content = <<<HTML
 <div id="custom-homepage">
   <div class="category-filters">
-    <a href="#" data-category="all" class="active">All</a>
-    <a href="#" data-category="technology">Technology</a>
-    <a href="#" data-category="science">Science</a>
-    <a href="#" data-category="history">History</a>
-    <a href="#" data-category="culture">Culture</a>
-  </div>
+  <!-- Populate this list using JavaScript -->
+</div>
   <div class="column" id="most-viewed">
     <h2>Most Viewed</h2>
     <ul>
@@ -32,7 +28,7 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
     </ul>
   </div>
   <div class="column" id="recent-articles">
-    <h2>Recent</h2>
+    <h2>Recently Published</h2>
     <ul>
       <!-- Populate this list using JavaScript -->
     </ul>
@@ -60,66 +56,125 @@ EOF
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.js << 'EOF'
 const apiEndpoint = "/api.php";
 
+function truncateText(text, maxLength) {
+  return text.length > maxLength ? text.substr(0, maxLength - 1) + "…" : text;
+}
+
 async function fetchArticleSnippet(title) {
   const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsentences=1&explaintext=1&inprop=url|displaytitle|created|modified&formatversion=2&origin=*`
+    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
   );
   const data = await response.json();
   const pages = data.query.pages;
   const pageInfo = pages[0];
 
+  const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
+
+  const fullText = pageInfo.extract;
+  const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
+  const firstRelevantParagraph = paragraphs[0] || '';
+
   return {
     title: pageInfo.title,
-    firstSentence: pageInfo.extract,
-    lastModified: new Date(pageInfo.modified),
+    firstSentence: truncateText(firstRelevantParagraph, 150),
+    lastModified: lastModified,
+    url: pageInfo.fullurl,
   };
 }
 
-async function populateArticleList(listElement, articles) {
+async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10) {
+  let addedArticles = 0;
   for (const article of articles) {
+    const articleId = generateArticleId(article.title);
+    if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Main Page') {
+      continue;
+    }
+
     const snippet = await fetchArticleSnippet(article.title);
     const listItem = document.createElement("li");
+
+    const displayDate = snippet.lastModified
+      ? `Last modified: ${snippet.lastModified.toLocaleDateString()}`
+      : snippet.firstPublished
+      ? `First published: ${snippet.firstPublished.toLocaleDateString()}`
+      : "Unknown";
+
     listItem.innerHTML = `
-      <h3>${snippet.title}</h3>
+      <h3><a href="${snippet.url}">${snippet.title}</a></h3>
+      <small>${displayDate}</small>
       <p>${snippet.firstSentence}</p>
-      <small>Last modified: ${snippet.lastModified.toLocaleDateString()}</small>
     `;
+
     listElement.appendChild(listItem);
+    existingIds.add(articleId);
+
+    addedArticles++;
   }
 }
 
-async function fetchPopularArticles() {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=querypage&qppage=Mostviewed&qpoffset=0&qplimit=10&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  console.log("fetchPopularArticles data:", data); // Log the data
-  const articles = data.query.querypage.results;
+async function fetchPopularArticles(existingTitles) {
   const popularArticlesList = document.querySelector("#most-viewed ul");
+  let addedArticles = 0;
+  let offset = 0;
+  const limit = 10;
+  const batchSize = 10;
 
-  populateArticleList(popularArticlesList, articles);
+  while (addedArticles < limit) {
+    const response = await fetch(
+      `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=${batchSize}&apfilterredir=nonredirects&apnamespace=0&approp=categories&apdir=descending&apoffset=${offset}&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const articles = data.query.allpages;
+
+    for (const article of articles) {
+      if (!existingTitles.has(article.title)) {
+        const snippet = await fetchArticleSnippet(article.title);
+        const listItem = document.createElement("li");
+
+        listItem.innerHTML = `
+          <h3><a href="${snippet.url}">${snippet.title}</a></h3>
+          <small>Last modified: ${snippet.lastModified.toLocaleDateString()}</small>
+          <p>${snippet.firstSentence}</p>
+        `;
+
+        popularArticlesList.appendChild(listItem);
+        existingTitles.add(article.title);
+        addedArticles++;
+
+        if (addedArticles >= limit) {
+          break;
+        }
+      }
+    }
+
+    offset += batchSize;
+  }
 }
 
-async function fetchRecentArticles() {
+function generateArticleId(title) {
+  return title.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+async function fetchRecentArticles(existingTitles) {
   const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=10&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
+    `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=50&apdir=descending&apfilterredir=nonredirects&apnamespace=0&approp=creation%7Ctimestamp&aporderby=creation&formatversion=2&origin=*`
   );
   const data = await response.json();
-  const articles = data.query.recentchanges;
+  const articles = data.query.allpages;
   const recentArticlesList = document.querySelector("#recent-articles ul");
 
-  populateArticleList(recentArticlesList, articles);
+  populateArticleList(recentArticlesList, articles, existingTitles, 10);
 }
 
-async function fetchRecentlyEditedArticles() {
+async function fetchRecentlyEditedArticles(existingTitles) {
   const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=10&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
+    `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=50&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
   );
   const data = await response.json();
   const articles = data.query.recentchanges;
   const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
 
-  populateArticleList(recentlyEditedArticlesList, articles);
+  populateArticleList(recentlyEditedArticlesList, articles, existingTitles, 10);
 }
 
 function filterArticlesByCategory(category) {
@@ -154,10 +209,115 @@ function setupCategoryFilters() {
   }
 }
 
-function fetchHomepageContent() {
-  fetchPopularArticles();
-  fetchRecentArticles();
-  fetchRecentlyEditedArticles();
+async function fetchUniqueCategories(articles) {
+  const categoryCounts = new Map();
+
+  for (const article of articles) {
+    const response = await fetch(
+      `${apiEndpoint}?action=query&format=json&prop=categories&titles=${encodeURIComponent(article.title)}&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const pages = data.query.pages;
+    const pageInfo = pages[0];
+    const categories = pageInfo.categories || [];
+
+    categories.forEach((category) => {
+      const categoryName = category.title.replace("Category:", "");
+      if (categoryCounts.has(categoryName)) {
+        categoryCounts.set(categoryName, categoryCounts.get(categoryName) + 1);
+      } else {
+        categoryCounts.set(categoryName, 1);
+      }
+    });
+  }
+
+  // Sort categories by count and select the top 4
+  const sortedCategories = Array.from(categoryCounts.entries()).sort((a, b) => b[1] - a[1]);
+  const topCategories = sortedCategories.slice(0, 4).map(([categoryName]) => categoryName);
+
+  return topCategories;
+}
+
+async function fetchAllCategories() {
+  const response = await fetch(
+    `${apiEndpoint}?action=query&format=json&list=allcategories&aclimit=500&formatversion=2&origin=*`
+  );
+  const data = await response.json();
+  const allCategories = data.query.allcategories.map((category) => category['*']);
+  return allCategories;
+}
+
+function populateFilterList(categories, allCategories) {
+  const filterList = document.querySelector(".category-filters");
+  filterList.innerHTML = ""; // Clear the current list
+
+  // Add the "All" filter
+  const allFilter = document.createElement("a");
+  allFilter.href = "#";
+  allFilter.dataset.category = "all";
+  allFilter.classList.add("active");
+  allFilter.textContent = "All";
+  filterList.appendChild(allFilter);
+
+  // Add category filters
+  categories.forEach((category) => {
+    const filter = document.createElement("a");
+    filter.href = "#";
+    filter.dataset.category = category.toLowerCase();
+    filter.textContent = category;
+    filterList.appendChild(filter);
+  });
+
+  const moreWrapper = document.createElement("li");
+  moreWrapper.classList.add("more-categories");
+
+  const moreLink = document.createElement("a");
+  moreLink.href = "#";
+  moreLink.textContent = "More";
+  moreWrapper.appendChild(moreLink);
+
+  const dropdownMenu = document.createElement("ul");
+  dropdownMenu.classList.add("dropdown-menu");
+
+  allCategories.forEach((category) => {
+    const dropdownItem = document.createElement("li");
+    dropdownItem.classList.add("dropdown-item");
+    dropdownItem.textContent = category;
+    dropdownItem.addEventListener("click", () => {
+      filterArticlesByCategory(category.toLowerCase());
+    });
+    dropdownMenu.appendChild(dropdownItem);
+  });
+
+  moreWrapper.appendChild(dropdownMenu);
+  filterList.appendChild(moreWrapper);
+
+  moreLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    dropdownMenu.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!moreWrapper.contains(event.target)) {
+      dropdownMenu.classList.remove("show");
+    }
+  });
+}
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const allCategories = await fetchAllCategories();
+    const topCategories = await fetchUniqueCategories(await fetchPopularArticles());
+    populateFilterList(topCategories, allCategories);
+  });
+
+
+async function fetchHomepageContent() {
+  const existingTitles = new Set();
+
+  await fetchPopularArticles(existingTitles);
+  await fetchRecentArticles(existingTitles);
+  await fetchRecentlyEditedArticles(existingTitles);
+
   setupCategoryFilters();
 }
 
@@ -171,14 +331,36 @@ cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/
 #custom-homepage {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 1.5rem;
   margin: 0 0 20px 0 !important;
+}
+
+body.page-Main_Page .mw-content-container {
+  max-width: 100% !important;
 }
 
 .category-filters {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+}
+
+.category-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.category-filters::-webkit-scrollbar {
+  height: 8px;
+}
+
+.category-filters::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
 .category-filters a {
@@ -199,6 +381,18 @@ cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/
 .column h2 {
   margin-bottom: 10px;
   font-size: 1.125rem;
+}
+
+.column h3 {
+  margin-bottom: .5rem;
+}
+
+.column h3 + small {
+  color: #595959;
+}
+
+.column h3 + small + p {
+   margin-top: .25rem;
 }
 
 .column ul {
@@ -226,6 +420,57 @@ body.page-Main_Page .mw-body {
 
 body.page-Main_Page .mw-body-content {
   margin-top: 0;
+}
+
+.more-categories {
+  position: relative;
+}
+
+.more-categories .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+.more-categories .dropdown-menu.show {
+  display: block;
+}
+
+.more-categories a {
+  padding: .5rem 1rem;
+  text-decoration: none !important;
+  font-size: .875rem;
+}
+
+.more-categories .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.more-categories .dropdown-item:hover {
+  background-color: #f5f5f5;
+  text-decoration: none;
 }
 
 /* Responsive styles */
