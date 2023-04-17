@@ -18,26 +18,26 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
         // Add custom homepage content
         $content = <<<HTML
 <div id="custom-homepage">
-  <div class="category-filters">
-  <!-- Populate this list using JavaScript -->
-</div>
-  <div class="column" id="most-viewed">
-    <h2>Most Viewed</h2>
-    <ul>
-      <!-- Populate this list using JavaScript -->
-    </ul>
-  </div>
-  <div class="column" id="recent-articles">
-    <h2>Recently Published</h2>
-    <ul>
-      <!-- Populate this list using JavaScript -->
-    </ul>
-  </div>
-  <div class="column" id="recently-edited">
-    <h2>Recently Edited</h2>
-    <ul>
-      <!-- Populate this list using JavaScript -->
-    </ul>
+  <div class="category-filters"></div>
+  <div class="columnGroup">
+    <div class="column" id="most-viewed">
+      <h2>Most Viewed</h2>
+      <ul>
+        <!-- Populate this list using JavaScript -->
+      </ul>
+    </div>
+    <div class="column" id="recent-articles">
+      <h2>Recently Published</h2>
+      <ul>
+        <!-- Populate this list using JavaScript -->
+      </ul>
+    </div>
+    <div class="column" id="recently-edited">
+      <h2>Recently Edited</h2>
+      <ul>
+        <!-- Populate this list using JavaScript -->
+      </ul>
+    </div>
   </div>
 </div>
 HTML;
@@ -179,19 +179,162 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 }
 
 async function fetchHomepageContent() {
-  const existingTitles = new Set();
+  const popularArticlesPromise = fetchPopularArticles();
+  const recentArticlesPromise = fetchRecentArticles();
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles();
 
-  const popularArticlesPromise = fetchPopularArticles(existingTitles);
-  const recentArticlesPromise = fetchRecentArticles(existingTitles);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingTitles);
+  // Call the promises without awaiting them
+  Promise.all([
+    popularArticlesPromise,
+    recentArticlesPromise,
+    recentlyEditedArticlesPromise,
+  ]).then(generateCategoryFilterList);
+}
+
+async function fetchTopCategories(limit = 5) {
+  try {
+    const response = await fetch(
+      `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=ascending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.query) {
+      console.error('Error fetching top categories: data.query is undefined');
+      return [];
+    }
+
+    const categories = Object.values(data.query.pages);
+    let topCategories = [];
+
+    for (let i = 0; i < categories.length && topCategories.length < limit; i++) {
+      const category = categories[i];
+      if (!category.hidden) {
+        topCategories.push({
+          title: category.title.replace("Category:", ""),
+        });
+      }
+    }
+
+    return topCategories;
+  } catch (error) {
+    console.error('Error fetching top categories:', error);
+    return [];
+  }
+}
+
+async function generateCategoryFilterList() {
+  const topCategories = await fetchTopCategories();
+  const categoryFilters = document.querySelector(".category-filters");
+  const filterList = document.createElement("ul");
+
+  // Add the "All" category
+  const allItem = document.createElement("li");
+  allItem.innerHTML = '<a href="#" data-category="all">All</a>';
+  filterList.appendChild(allItem);
+
+  // Add the fetched categories
+  for (const category of topCategories) {
+    const listItem = document.createElement("li");
+    listItem.innerHTML = `<a href="#" data-category="${category.title}">${category.title}</a>`;
+    filterList.appendChild(listItem);
+  }
+
+  categoryFilters.appendChild(filterList);
+}
+
+async function fetchHomepageContent() {
+  const existingIds = new Set();
+
+  const popularArticlesPromise = fetchPopularArticles(existingIds);
+  const recentArticlesPromise = fetchRecentArticles(existingIds);
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
 
   // Await the promises to ensure that recentArticles is defined
-  const [ , recentArticles] = await Promise.all([
+  await Promise.all([
     popularArticlesPromise,
     recentArticlesPromise,
     recentlyEditedArticlesPromise,
   ]);
 
+  generateCategoryFilterList();
+}
+
+
+function applyCategoryFilter(category) {
+  const allCategories = document.querySelectorAll(".category-filters a");
+  allCategories.forEach((cat) => cat.classList.remove("active"));
+
+  if (category === "all") {
+    document.querySelector(".category-filters a[data-category='all']").classList.add("active");
+  } else {
+    document.querySelector(`.category-filters a[data-category='${category}']`).classList.add("active");
+  }
+
+  const allColumns = document.querySelectorAll(".column ul");
+  allColumns.forEach((column) => {
+    column.innerHTML = "";
+  });
+
+  const existingIds = new Set();
+
+  if (category === "all") {
+    fetchPopularArticles(existingIds);
+    fetchRecentArticles(existingIds);
+    fetchRecentlyEditedArticles(existingIds);
+  } else {
+    fetchArticlesByCategory(category, existingIds);
+  }
+}
+
+async function fetchArticlesByCategory(category, existingIds) {
+  const response = await fetch(
+    `${apiEndpoint}?action=query&format=json&list=categorymembers&cmtitle=Category:${encodeURIComponent(category)}&cmlimit=50&cmnamespace=0&formatversion=2&origin=*`
+  );
+  const data = await response.json();
+  const articles = data.query.categorymembers;
+
+  const popularArticlesList = document.querySelector("#most-viewed ul");
+  const recentArticlesList = document.querySelector("#recent-articles ul");
+  const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
+
+  populateArticleList(popularArticlesList, articles, existingIds, 10);
+  populateArticleList(recentArticlesList, articles, existingIds, 10);
+  populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
+}
+
+async function generateCategoryFilterList() {
+  const topCategories = await fetchTopCategories();
+  const categoryFilters = document.querySelector(".category-filters");
+  const filterList = document.createElement("ul");
+
+  // Add the "All" category
+  const allItem = document.createElement("li");
+  allItem.innerHTML = '<a href="#" data-category="all" class="active">All</a>';
+  filterList.appendChild(allItem);
+
+  // Add the fetched categories
+  for (const category of topCategories) {
+    const listItem = document.createElement("li");
+    listItem.innerHTML = `<a href="#" data-category="${category.title}">${category.title}</a>`;
+    filterList.appendChild(listItem);
+  }
+
+  categoryFilters.appendChild(filterList);
+
+  // Add click event listeners to filter categories
+  const filterLinks = document.querySelectorAll(".category-filters a");
+  filterLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const category = event.target.dataset.category;
+      applyCategoryFilter(category);
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", fetchHomepageContent);
@@ -202,7 +345,6 @@ cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/
 #custom-homepage {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
   margin: 0 0 20px 0 !important;
 }
 
@@ -210,12 +352,59 @@ body.page-Main_Page .mw-content-container {
   max-width: 100% !important;
 }
 
+.columnGroup {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2rem;
+  width: 100%;
+}
+
+.category-filters {
+  display: flex;
+  width: 100%;
+  overflow-x: scroll ;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 1rem;
+  justify-content: flex-start;
+}
+
+.category-filters ul {
+  display: flex;
+  flex-wrap: nowrap;
+  list-style-type: none;
+  padding: 1rem 0;
+  margin: 0 !important;
+}
+
+.category-filters ul li {
+  white-space: nowrap;
+  list-style: none;
+  font-size: .875rem;
+}
+
+.category-filters ul li a {
+  text-decoration: none !important;
+  padding: 1rem;
+}
+
+.category-filters a.active {
+  border-bottom: 3px solid #333;
+  background-color: #fff;
+}
+
+#mw-sidebar-checkbox:not(:checked) ~ .vector-sidebar-container-no-toc ~ .mw-content-container {
+  padding-left: 0;
+}
+
 .column {
   flex: 1;
+  max-width: 100%;
 }
 
 .column h2 {
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
   font-size: 1.125rem;
 }
 
@@ -252,6 +441,7 @@ body.page-Main_Page .mw-body-header {
 
 body.page-Main_Page .mw-body {
   padding-top: 0;
+  padding-right: 0;
 }
 
 body.page-Main_Page .mw-body-content {
@@ -260,7 +450,7 @@ body.page-Main_Page .mw-body-content {
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  #custom-homepage {
+  #custom-homepage .columnGroup {
     flex-direction: column;
   }
 }
