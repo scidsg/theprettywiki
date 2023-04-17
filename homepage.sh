@@ -149,6 +149,7 @@ async function fetchPopularArticles(existingTitles) {
 
     offset += batchSize;
   }
+  return existingTitles;
 }
 
 function generateArticleId(title) {
@@ -177,153 +178,23 @@ async function fetchRecentlyEditedArticles(existingTitles) {
   populateArticleList(recentlyEditedArticlesList, articles, existingTitles, 10);
 }
 
-function filterArticlesByCategory(category) {
-  const columns = document.querySelectorAll(".column");
-  for (const column of columns) {
-    const articles = column.querySelectorAll("li");
-    for (const article of articles) {
-      if (category === "all" || article.dataset.category === category) {
-        article.style.display = "";
-      } else {
-        article.style.display = "none";
-      }
-    }
-  }
-}
-
-function setupCategoryFilters() {
-  const filters = document.querySelectorAll(".category-filters a");
-  for (const filter of filters) {
-    filter.addEventListener("click", (event) => {
-      event.preventDefault();
-      const category = filter.dataset.category;
-
-      // Remove active class from other filters
-      for (const otherFilter of filters) {
-        otherFilter.classList.remove("active");
-      }
-      filter.classList.add("active");
-
-      filterArticlesByCategory(category);
-    });
-  }
-}
-
-async function fetchUniqueCategories(articles) {
-  const categoryCounts = new Map();
-
-  for (const article of articles) {
-    const response = await fetch(
-      `${apiEndpoint}?action=query&format=json&prop=categories&titles=${encodeURIComponent(article.title)}&formatversion=2&origin=*`
-    );
-    const data = await response.json();
-    const pages = data.query.pages;
-    const pageInfo = pages[0];
-    const categories = pageInfo.categories || [];
-
-    categories.forEach((category) => {
-      const categoryName = category.title.replace("Category:", "");
-      if (categoryCounts.has(categoryName)) {
-        categoryCounts.set(categoryName, categoryCounts.get(categoryName) + 1);
-      } else {
-        categoryCounts.set(categoryName, 1);
-      }
-    });
-  }
-
-  // Sort categories by count and select the top 4
-  const sortedCategories = Array.from(categoryCounts.entries()).sort((a, b) => b[1] - a[1]);
-  const topCategories = sortedCategories.slice(0, 4).map(([categoryName]) => categoryName);
-
-  return topCategories;
-}
-
-async function fetchAllCategories() {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=allcategories&aclimit=500&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const allCategories = data.query.allcategories.map((category) => category['*']);
-  return allCategories;
-}
-
-function populateFilterList(categories, allCategories) {
-  const filterList = document.querySelector(".category-filters");
-  filterList.innerHTML = ""; // Clear the current list
-
-  // Add the "All" filter
-  const allFilter = document.createElement("a");
-  allFilter.href = "#";
-  allFilter.dataset.category = "all";
-  allFilter.classList.add("active");
-  allFilter.textContent = "All";
-  filterList.appendChild(allFilter);
-
-  // Add category filters
-  categories.forEach((category) => {
-    const filter = document.createElement("a");
-    filter.href = "#";
-    filter.dataset.category = category.toLowerCase();
-    filter.textContent = category;
-    filterList.appendChild(filter);
-  });
-
-  const moreWrapper = document.createElement("li");
-  moreWrapper.classList.add("more-categories");
-
-  const moreLink = document.createElement("a");
-  moreLink.href = "#";
-  moreLink.textContent = "More";
-  moreWrapper.appendChild(moreLink);
-
-  const dropdownMenu = document.createElement("ul");
-  dropdownMenu.classList.add("dropdown-menu");
-
-  allCategories.forEach((category) => {
-    const dropdownItem = document.createElement("li");
-    dropdownItem.classList.add("dropdown-item");
-    dropdownItem.textContent = category;
-    dropdownItem.addEventListener("click", () => {
-      filterArticlesByCategory(category.toLowerCase());
-    });
-    dropdownMenu.appendChild(dropdownItem);
-  });
-
-  moreWrapper.appendChild(dropdownMenu);
-  filterList.appendChild(moreWrapper);
-
-  moreLink.addEventListener("click", (event) => {
-    event.preventDefault();
-    dropdownMenu.classList.toggle("show");
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!moreWrapper.contains(event.target)) {
-      dropdownMenu.classList.remove("show");
-    }
-  });
-}
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const allCategories = await fetchAllCategories();
-    const topCategories = await fetchUniqueCategories(await fetchPopularArticles());
-    populateFilterList(topCategories, allCategories);
-  });
-
-
 async function fetchHomepageContent() {
   const existingTitles = new Set();
 
-  await fetchPopularArticles(existingTitles);
-  await fetchRecentArticles(existingTitles);
-  await fetchRecentlyEditedArticles(existingTitles);
+  const popularArticlesPromise = fetchPopularArticles(existingTitles);
+  const recentArticlesPromise = fetchRecentArticles(existingTitles);
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingTitles);
 
-  setupCategoryFilters();
+  // Await the promises to ensure that recentArticles is defined
+  const [ , recentArticles] = await Promise.all([
+    popularArticlesPromise,
+    recentArticlesPromise,
+    recentlyEditedArticlesPromise,
+  ]);
+
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetchHomepageContent();
-});
+document.addEventListener("DOMContentLoaded", fetchHomepageContent);
 
 EOF
 
