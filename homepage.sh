@@ -191,10 +191,10 @@ async function fetchHomepageContent() {
   ]).then(generateCategoryFilterList);
 }
 
-async function fetchTopCategories(limit = 5) {
+async function fetchTopCategories(limit = 3) {
   try {
     const response = await fetch(
-      `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=ascending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5`
+      `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=descending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5`
     );
 
     if (!response.ok) {
@@ -363,7 +363,7 @@ body.page-Main_Page .mw-content-container {
 .category-filters {
   display: flex;
   width: 100%;
-  overflow-x: scroll ;
+  overflow-x: auto ;
   flex-direction: row;
   justify-content: center;
   margin-bottom: 1rem;
