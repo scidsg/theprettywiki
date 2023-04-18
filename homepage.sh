@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-cat > /var/www/html/mediawiki/extensions/homepage.php << EOL
+cat > /var/www/html/mediawiki/extensions/homepage.php << 'EOL'
 <?php
 $wgHooks['MediaWikiPerformAction'][] = 'onMediaWikiPerformAction';
 function onMediaWikiPerformAction($output, $article, $title, $user, $request, $mediaWiki) {
