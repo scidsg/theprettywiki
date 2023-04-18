@@ -4,6 +4,7 @@ cat > /var/www/html/mediawiki/extensions/homepage.php << EOL
 <?php
 $wgHooks['MediaWikiPerformAction'][] = 'onMediaWikiPerformAction';
 function onMediaWikiPerformAction($output, $article, $title, $user, $request, $mediaWiki) {
+    error_log("onMediaWikiPerformAction called");
     if ($title->isMainPage()) {
         global $wgScriptPath;
         // Load custom CSS
