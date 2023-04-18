@@ -337,6 +337,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
 
+.mw-header .mw-header-content #p-search.vector-search-box {
+     margin-left: 4.5rem !important;
+  }
+
 @media (max-width: 1199px) {
   .mw-header .mw-header-content #p-search.vector-search-box {
      margin-left: 1.5rem !important;
