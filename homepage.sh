@@ -67,21 +67,13 @@ async function fetchArticleSnippet(title) {
   const data = await response.json();
   const pages = data.query.pages;
   const pageInfo = pages[0];
+
   const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
+
   const fullText = pageInfo.extract;
-
-  if (!fullText) {
-    console.warn(`No extract found for ${title}`);
-    return {
-      title: pageInfo.title,
-      firstSentence: '',
-      lastModified: lastModified,
-      url: pageInfo.fullurl,
-    };
-  }
-
   const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
   const firstRelevantParagraph = paragraphs[0] || '';
+
   return {
     title: pageInfo.title,
     firstSentence: truncateText(firstRelevantParagraph, 150),
@@ -187,20 +179,16 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 }
 
 async function fetchHomepageContent() {
-  const existingIds = new Set();
+  const popularArticlesPromise = fetchPopularArticles();
+  const recentArticlesPromise = fetchRecentArticles();
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles();
 
-  const popularArticlesPromise = fetchPopularArticles(existingIds);
-  const recentArticlesPromise = fetchRecentArticles(existingIds);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
-
-  // Await the promises to ensure that recentArticles is defined
-  await Promise.all([
+  // Call the promises without awaiting them
+  Promise.all([
     popularArticlesPromise,
     recentArticlesPromise,
     recentlyEditedArticlesPromise,
-  ]);
-
-  generateCategoryFilterList();
+  ]).then(generateCategoryFilterList);
 }
 
 async function fetchTopCategories(limit = 3) {
