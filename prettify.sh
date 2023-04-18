@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Download Science & Design brand resources
 cd /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/
@@ -129,6 +129,10 @@ h1, h2 {
   margin: 2rem 0 1rem 0;
 }
 
+.mw-logo-container {
+  max-width: initial !important;
+}
+
 .vector-body p {
   max-width: 640px;
   font-size: 1rem;
@@ -184,6 +188,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
 #mw-content-text a {
   text-decoration: underline;
+}
+
+.mw-header #mw-sidebar-button {
+  display: none;
 }
 
 .mw-body .firstHeading {
@@ -329,6 +337,12 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
 
+@media (max-width: 1199px) {
+  .mw-header .mw-header-content #p-search.vector-search-box {
+     margin-left: 1.5rem !important;
+  }
+}
+
 @media only screen and (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
     position: absolute !important;  
@@ -343,12 +357,12 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   }
 
   .vector-below-page-title #vector-toc-collapsed-button {
-    display: none;
+    display: none !important;
   }
 
   #vector-toc-collapsed-button {
-    float: right;
-    transform: translateY(50%);
+    float: right !important;
+    transform: translateY(50%) !important;
   }
 }
 EOL
