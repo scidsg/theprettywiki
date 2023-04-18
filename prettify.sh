@@ -161,7 +161,7 @@ h1, h2 {
 }
 
 .mw-header .vector-search-box {
-  margin-left: 1.5rem;
+  margin-left: 4.5rem;
 }
 
 .cdx-typeahead-search--show-thumbnail.cdx-typeahead-search--auto-expand-width:not(.cdx-typeahead-search--active) {
@@ -343,10 +343,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   }
 }
 
-@media only screen and (max-width: 999px) {
+@media (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
     position: absolute !important;  
-    top: 6rem;
+    top: 7rem;
     right: 1rem;
     left: inherit;
     background-color: white;
