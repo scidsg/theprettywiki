@@ -408,6 +408,17 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
         // Add custom homepage content
         $content = <<<HTML
 <div id="custom-homepage">
+<!--   <div id="banner"> -->
+<!--     <div class="banner-content"> -->
+<!--       <p>❤️  Support DDoSecrets by donating today! <a href="#">Donate Now</a></p> -->
+<!--     </div> -->
+<!--     <button id="close-banner" aria-label="Close">
+<!--      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=">
+<!--        <line x1="18" y1="6" x2="6" y2="18"></line>  -->
+<!--        <line x1="6" y1="6" x2="18" y2="18"></line>  -->
+<!--     </svg> -->
+<!--     </button> -->
+<!--   </div> -->
   <div class="category-filters"></div>
   <div class="columnGroup">
     <div class="column" id="featured-articles">
@@ -655,6 +666,29 @@ async function fetchArticlesByCategory(category, existingIds) {
   populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  const closeBannerBtn = document.getElementById('close-banner');
+  const banner = document.getElementById('banner');
+  const body = document.querySelector('body');
+
+  console.log('DOMContentLoaded'); // Debug log
+
+  if (banner) {
+    // Add the banner-present class to the body
+    body.classList.add('banner-present');
+
+    console.log('Banner found'); // Debug log
+
+    closeBannerBtn.addEventListener('click', function() {
+      console.log('Close button clicked'); // Debug log
+      banner.style.display = 'none';
+      // Remove the banner-present class from the body
+      body.classList.remove('banner-present');
+    });
+  }
+});
+
+
 async function generateCategoryFilterList() {
   console.log('Generating category filter list...');
   const topCategories = await fetchTopCategories();
@@ -688,6 +722,48 @@ document.addEventListener("DOMContentLoaded", fetchHomepageContent);
 EOF
 
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.css << EOL
+#banner {
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+}
+
+#banner p {
+  margin: 0;
+  color: white;
+  font-size: .875rem;
+}
+
+#banner a {
+  color: white !important;
+}
+
+.banner-content {
+  max-width: 80%;
+}
+
+#close-banner {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  right: .5rem;
+}
+
+body.banner-present {
+  padding-top: 40px;
+}
+
 #custom-homepage {
   display: flex;
   flex-wrap: wrap;
