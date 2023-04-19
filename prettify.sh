@@ -337,13 +337,32 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
 
+.spinner {
+  border: 3px solid #fff;
+  border-top: 3px solid #999;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 2s linear infinite;
+  margin: 2rem auto 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .mw-header .mw-header-content #p-search.vector-search-box {
-     margin-left: 4.5rem !important;
+     margin-left: 5rem !important;
   }
 
 @media (max-width: 1199px) {
   .mw-header .mw-header-content #p-search.vector-search-box {
-     margin-left: 1.5rem !important;
+     margin-left: 1.75rem !important;
   }
 }
 
@@ -390,20 +409,20 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
     <div class="column" id="most-viewed">
       <h2>Most Viewed</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
     <div class="column" id="recent-articles">
       <h2>Recently Published</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
     <div class="column" id="recently-edited">
       <h2>Recently Edited</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
   </div>
 </div>
@@ -429,8 +448,9 @@ async function fetchArticleSnippet(title) {
   );
   const data = await response.json();
   const pages = data.query.pages;
-  const pageInfo = pages[0];
-  const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
+   const pageInfo = pages[0];
+   const created = pageInfo.created ? new Date(pageInfo.created) : null;
+   const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
   const fullText = pageInfo.extract;
   if (!fullText) {
     console.warn(`No extract found for ${title}`);
@@ -446,6 +466,7 @@ async function fetchArticleSnippet(title) {
   return {
     title: pageInfo.title,
     firstSentence: truncateText(firstRelevantParagraph, 150),
+    created: created,
     lastModified: lastModified,
     url: pageInfo.fullurl,
   };
@@ -474,9 +495,11 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
     existingIds.add(articleId);
     addedArticles++;
   }
+  // Hide spinner
+  listElement.nextElementSibling.style.display = "none";
 }
 
-async function fetchPopularArticles(existingTitles) {
+async function fetchPopularArticles(existingIds) {
   const popularArticlesList = document.querySelector("#most-viewed ul");
   let addedArticles = 0;
   let offset = 0;
@@ -490,24 +513,11 @@ async function fetchPopularArticles(existingTitles) {
     const data = await response.json();
     const articles = data.query.allpages;
 
-    for (const article of articles) {
-      if (!existingTitles.has(article.title)) {
-        const snippet = await fetchArticleSnippet(article.title);
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `
-          <h3><a href="${snippet.url}">${snippet.title}</a></h3>
-          <small>Last modified: ${snippet.lastModified.toLocaleDateString()}</small>
-          <p>${snippet.firstSentence}</p>
-        `;
-        popularArticlesList.appendChild(listItem);
-        existingTitles.add(article.title);
-        addedArticles++;
+    // Use populateArticleList() for the "Most Viewed" column as well
+    await populateArticleList(popularArticlesList, articles, existingIds, limit - addedArticles);
 
-        if (addedArticles >= limit) {
-          break;
-        }
-      }
-    }
+    addedArticles += articles.length;
+
     // Stop the loop if there are no more articles to fetch
     if (articles.length < batchSize) {
       break;
@@ -515,7 +525,6 @@ async function fetchPopularArticles(existingTitles) {
 
     offset += batchSize;
   }
-  return existingTitles;
 }
 
 function generateArticleId(title) {
@@ -528,6 +537,7 @@ async function fetchRecentArticles(existingTitles) {
   );
   const data = await response.json();
   const articles = data.query.allpages;
+
   const recentArticlesList = document.querySelector("#recent-articles ul");
   populateArticleList(recentArticlesList, articles, existingTitles, 10);
 }
@@ -544,15 +554,17 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 
 async function fetchHomepageContent() {
   const existingIds = new Set();
-  const popularArticlesPromise = fetchPopularArticles(existingIds);
-  const recentArticlesPromise = fetchRecentArticles(existingIds);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
+  const popularArticlesPromise = fetchPopularArticles(existingIds); // Most Viewed column
+  const recentArticlesPromise = fetchRecentArticles(existingIds); // Recently Published column
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds); // Recently Edited column
+  
   // Await the promises to ensure that recentArticles is defined
   await Promise.all([
     popularArticlesPromise,
     recentArticlesPromise,
     recentlyEditedArticlesPromise,
   ]);
+
   generateCategoryFilterList();
 }
 
@@ -604,10 +616,9 @@ async function generateCategoryFilterList() {
 }
 
 async function fetchHomepageContent() {
-  const existingIds = new Set();
-  const popularArticlesPromise = fetchPopularArticles(existingIds);
-  const recentArticlesPromise = fetchRecentArticles(existingIds);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
+  const popularArticlesPromise = fetchPopularArticles();
+  const recentArticlesPromise = fetchRecentArticles(new Set());
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
   // Await the promises to ensure that recentArticles is defined
   await Promise.all([
     popularArticlesPromise,
