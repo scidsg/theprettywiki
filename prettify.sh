@@ -422,7 +422,7 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
   <div class="category-filters"></div>
   <div class="columnGroup">
     <div class="column" id="featured-articles">
-      <h2>Most Viewed</h2>
+      <h2>Featured Articles</h2>
       <ul>
       </ul>
       <div class="spinner"></div>
