@@ -406,7 +406,7 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
 <div id="custom-homepage">
   <div class="category-filters"></div>
   <div class="columnGroup">
-    <div class="column" id="most-viewed">
+    <div class="column" id="featured-articles">
       <h2>Most Viewed</h2>
       <ul>
       </ul>
@@ -499,32 +499,30 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
   listElement.nextElementSibling.style.display = "none";
 }
 
-async function fetchPopularArticles(existingIds) {
-  const popularArticlesList = document.querySelector("#most-viewed ul");
-  let addedArticles = 0;
-  let offset = 0;
-  const limit = 10;
-  const batchSize = 10;
+// Add this new function to fetch featured articles
+async function fetchFeaturedArticles() {
+  const response = await fetch(
+    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent('Featured articles')}&explaintext=1&formatversion=2&origin=*`
+  );
+  const data = await response.json();
+  const pages = data.query.pages;
+  const pageInfo = pages[0];
+  const fullText = pageInfo.extract;
 
-  while (addedArticles < limit) {
-    const response = await fetch(
-      `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=${batchSize}&apfilterredir=nonredirects&apnamespace=0&approp=categories&apdir=descending&apoffset=${offset}&formatversion=2&origin=*`
-    );
-    const data = await response.json();
-    const articles = data.query.allpages;
-
-    // Use populateArticleList() for the "Most Viewed" column as well
-    await populateArticleList(popularArticlesList, articles, existingIds, limit - addedArticles);
-
-    addedArticles += articles.length;
-
-    // Stop the loop if there are no more articles to fetch
-    if (articles.length < batchSize) {
-      break;
-    }
-
-    offset += batchSize;
+  if (!fullText) {
+    console.warn("No extract found for Featured articles");
+    return [];
   }
+
+  // Split the text content into lines and filter out empty lines
+  const featuredArticleTitles = fullText
+    .split("\n")
+    .filter((title) => title.trim().length > 0);
+
+  const featuredArticlesList = document.querySelector("#featured-articles ul");
+  const existingIds = new Set();
+  // Use the existing populateArticleList() function to populate the list with the featured articles
+  await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
 }
 
 function generateArticleId(title) {
@@ -553,14 +551,13 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 }
 
 async function fetchHomepageContent() {
-  const existingIds = new Set();
-  const popularArticlesPromise = fetchPopularArticles(existingIds); // Most Viewed column
-  const recentArticlesPromise = fetchRecentArticles(existingIds); // Recently Published column
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds); // Recently Edited column
-  
+  const featuredArticlesPromise = fetchFeaturedArticles(); // Featured articles column
+  const recentArticlesPromise = fetchRecentArticles(new Set());
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
+
   // Await the promises to ensure that recentArticles is defined
   await Promise.all([
-    popularArticlesPromise,
+    featuredArticlesPromise,
     recentArticlesPromise,
     recentlyEditedArticlesPromise,
   ]);
@@ -615,19 +612,6 @@ async function generateCategoryFilterList() {
   categoryFilters.appendChild(filterList);
 }
 
-async function fetchHomepageContent() {
-  const popularArticlesPromise = fetchPopularArticles();
-  const recentArticlesPromise = fetchRecentArticles(new Set());
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
-  // Await the promises to ensure that recentArticles is defined
-  await Promise.all([
-    popularArticlesPromise,
-    recentArticlesPromise,
-    recentlyEditedArticlesPromise,
-  ]);
-  generateCategoryFilterList();
-}
-
 function applyCategoryFilter(category) {
   const allCategories = document.querySelectorAll(".category-filters a");
   allCategories.forEach((cat) => cat.classList.remove("active"));
@@ -642,7 +626,7 @@ function applyCategoryFilter(category) {
   });
   const existingIds = new Set();
   if (category === "all") {
-    fetchPopularArticles(existingIds);
+    fetchFeaturedArticles(existingIds);
     fetchRecentArticles(existingIds);
     fetchRecentlyEditedArticles(existingIds);
   } else {
@@ -656,10 +640,10 @@ async function fetchArticlesByCategory(category, existingIds) {
   );
   const data = await response.json();
   const articles = data.query.categorymembers;
-  const popularArticlesList = document.querySelector("#most-viewed ul");
+  const featuredArticlesList = document.querySelector("#featured-articles ul");
   const recentArticlesList = document.querySelector("#recent-articles ul");
   const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-  populateArticleList(popularArticlesList, articles, existingIds, 10);
+  populateArticleList(featuredArticlesList, articles, existingIds, 10);
   populateArticleList(recentArticlesList, articles, existingIds, 10);
   populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
 }
