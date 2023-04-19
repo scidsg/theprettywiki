@@ -161,7 +161,7 @@ h1, h2 {
 }
 
 .mw-header .vector-search-box {
-  margin-left: 4.5rem;
+  margin-left: 1.5rem;
 }
 
 .cdx-typeahead-search--show-thumbnail.cdx-typeahead-search--auto-expand-width:not(.cdx-typeahead-search--active) {
@@ -240,9 +240,9 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   font-size: 1.5rem;
 }
 
-.vector-body h3, 
-.vector-body h4, 
-.vector-body h5, 
+.vector-body h3,
+.vector-body h4,
+.vector-body h5,
 .vector-body h6 {
   line-height: 1.2;
 }
@@ -265,8 +265,8 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   margin-left: 0;
 }
 
-.vector-page-titlebar, 
-.vector-page-toolbar-container, 
+.vector-page-titlebar,
+.vector-page-toolbar-container,
 .mw-article-toolbar-container {
   box-shadow: none;
   border-bottom: 1px solid rgba(0,0,0,0.1);
@@ -370,10 +370,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   }
 }
 
-@media (max-width: 999px) {
+@media only screen and (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
-    position: absolute !important;  
-    top: 7rem;
+    position: absolute !important;
+    top: 6rem;
     right: 1rem;
     left: inherit;
     background-color: white;
@@ -392,6 +392,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
     transform: translateY(50%) !important;
   }
 }
+
 EOL
 
 cat > /var/www/html/mediawiki/extensions/homepage.php << 'EOL'
@@ -456,6 +457,7 @@ const apiEndpoint = "/api.php";
 function truncateText(text, maxLength) {
   return text.length > maxLength ? text.substr(0, maxLength - 1) + "…" : text;
 }
+
 async function fetchArticleSnippet(title) {
   const response = await fetch(
     `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
