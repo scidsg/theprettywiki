@@ -479,6 +479,9 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
     if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Main Page') {
       continue;
     }
+    if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Featured articles') {
+      continue;
+    }
     const snippet = await fetchArticleSnippet(article.title);
     const listItem = document.createElement("li");
     const displayDate = snippet.lastModified
