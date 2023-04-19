@@ -337,6 +337,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
 
+.mw-footer-container {
+  padding-bottom: 1rem;
+}
+
 .spinner {
   border: 3px solid #fff;
   border-top: 3px solid #999;
