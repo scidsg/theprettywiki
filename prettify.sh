@@ -337,13 +337,36 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
 
+.mw-footer-container {
+  padding-bottom: 1rem;
+}
+
+.spinner {
+  border: 3px solid #fff;
+  border-top: 3px solid #999;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 2s linear infinite;
+  margin: 2rem auto 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .mw-header .mw-header-content #p-search.vector-search-box {
-     margin-left: 4.5rem !important;
+     margin-left: 5rem !important;
   }
 
 @media (max-width: 1199px) {
   .mw-header .mw-header-content #p-search.vector-search-box {
-     margin-left: 1.5rem !important;
+     margin-left: 1.75rem !important;
   }
 }
 
@@ -385,25 +408,36 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
         // Add custom homepage content
         $content = <<<HTML
 <div id="custom-homepage">
+<!--   <div id="banner"> -->
+<!--     <div class="banner-content"> -->
+<!--       <p>❤️  Support DDoSecrets by donating today! <a href="#">Donate Now</a></p> -->
+<!--     </div> -->
+<!--     <button id="close-banner" aria-label="Close">
+<!--      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=">
+<!--        <line x1="18" y1="6" x2="6" y2="18"></line>  -->
+<!--        <line x1="6" y1="6" x2="18" y2="18"></line>  -->
+<!--     </svg> -->
+<!--     </button> -->
+<!--   </div> -->
   <div class="category-filters"></div>
   <div class="columnGroup">
-    <div class="column" id="most-viewed">
+    <div class="column" id="featured-articles">
       <h2>Most Viewed</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
     <div class="column" id="recent-articles">
       <h2>Recently Published</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
     <div class="column" id="recently-edited">
       <h2>Recently Edited</h2>
       <ul>
-        <!-- Populate this list using JavaScript -->
       </ul>
+      <div class="spinner"></div>
     </div>
   </div>
 </div>
@@ -429,8 +463,9 @@ async function fetchArticleSnippet(title) {
   );
   const data = await response.json();
   const pages = data.query.pages;
-  const pageInfo = pages[0];
-  const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
+   const pageInfo = pages[0];
+   const created = pageInfo.created ? new Date(pageInfo.created) : null;
+   const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
   const fullText = pageInfo.extract;
   if (!fullText) {
     console.warn(`No extract found for ${title}`);
@@ -446,6 +481,7 @@ async function fetchArticleSnippet(title) {
   return {
     title: pageInfo.title,
     firstSentence: truncateText(firstRelevantParagraph, 150),
+    created: created,
     lastModified: lastModified,
     url: pageInfo.fullurl,
   };
@@ -456,6 +492,9 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
   for (const article of articles) {
     const articleId = generateArticleId(article.title);
     if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Main Page') {
+      continue;
+    }
+    if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Featured articles') {
       continue;
     }
     const snippet = await fetchArticleSnippet(article.title);
@@ -474,48 +513,34 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
     existingIds.add(articleId);
     addedArticles++;
   }
+  // Hide spinner
+  listElement.nextElementSibling.style.display = "none";
 }
 
-async function fetchPopularArticles(existingTitles) {
-  const popularArticlesList = document.querySelector("#most-viewed ul");
-  let addedArticles = 0;
-  let offset = 0;
-  const limit = 10;
-  const batchSize = 10;
+// Add this new function to fetch featured articles
+async function fetchFeaturedArticles() {
+  const response = await fetch(
+    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent('Featured articles')}&explaintext=1&formatversion=2&origin=*`
+  );
+  const data = await response.json();
+  const pages = data.query.pages;
+  const pageInfo = pages[0];
+  const fullText = pageInfo.extract;
 
-  while (addedArticles < limit) {
-    const response = await fetch(
-      `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=${batchSize}&apfilterredir=nonredirects&apnamespace=0&approp=categories&apdir=descending&apoffset=${offset}&formatversion=2&origin=*`
-    );
-    const data = await response.json();
-    const articles = data.query.allpages;
-
-    for (const article of articles) {
-      if (!existingTitles.has(article.title)) {
-        const snippet = await fetchArticleSnippet(article.title);
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `
-          <h3><a href="${snippet.url}">${snippet.title}</a></h3>
-          <small>Last modified: ${snippet.lastModified.toLocaleDateString()}</small>
-          <p>${snippet.firstSentence}</p>
-        `;
-        popularArticlesList.appendChild(listItem);
-        existingTitles.add(article.title);
-        addedArticles++;
-
-        if (addedArticles >= limit) {
-          break;
-        }
-      }
-    }
-    // Stop the loop if there are no more articles to fetch
-    if (articles.length < batchSize) {
-      break;
-    }
-
-    offset += batchSize;
+  if (!fullText) {
+    console.warn("No extract found for Featured articles");
+    return [];
   }
-  return existingTitles;
+
+  // Split the text content into lines and filter out empty lines
+  const featuredArticleTitles = fullText
+    .split("\n")
+    .filter((title) => title.trim().length > 0);
+
+  const featuredArticlesList = document.querySelector("#featured-articles ul");
+  const existingIds = new Set();
+  // Use the existing populateArticleList() function to populate the list with the featured articles
+  await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
 }
 
 function generateArticleId(title) {
@@ -528,6 +553,7 @@ async function fetchRecentArticles(existingTitles) {
   );
   const data = await response.json();
   const articles = data.query.allpages;
+
   const recentArticlesList = document.querySelector("#recent-articles ul");
   populateArticleList(recentArticlesList, articles, existingTitles, 10);
 }
@@ -543,16 +569,17 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 }
 
 async function fetchHomepageContent() {
-  const existingIds = new Set();
-  const popularArticlesPromise = fetchPopularArticles(existingIds);
-  const recentArticlesPromise = fetchRecentArticles(existingIds);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
+  const featuredArticlesPromise = fetchFeaturedArticles(); // Featured articles column
+  const recentArticlesPromise = fetchRecentArticles(new Set());
+  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
+
   // Await the promises to ensure that recentArticles is defined
   await Promise.all([
-    popularArticlesPromise,
+    featuredArticlesPromise,
     recentArticlesPromise,
     recentlyEditedArticlesPromise,
   ]);
+
   generateCategoryFilterList();
 }
 
@@ -603,20 +630,6 @@ async function generateCategoryFilterList() {
   categoryFilters.appendChild(filterList);
 }
 
-async function fetchHomepageContent() {
-  const existingIds = new Set();
-  const popularArticlesPromise = fetchPopularArticles(existingIds);
-  const recentArticlesPromise = fetchRecentArticles(existingIds);
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(existingIds);
-  // Await the promises to ensure that recentArticles is defined
-  await Promise.all([
-    popularArticlesPromise,
-    recentArticlesPromise,
-    recentlyEditedArticlesPromise,
-  ]);
-  generateCategoryFilterList();
-}
-
 function applyCategoryFilter(category) {
   const allCategories = document.querySelectorAll(".category-filters a");
   allCategories.forEach((cat) => cat.classList.remove("active"));
@@ -631,7 +644,7 @@ function applyCategoryFilter(category) {
   });
   const existingIds = new Set();
   if (category === "all") {
-    fetchPopularArticles(existingIds);
+    fetchFeaturedArticles(existingIds);
     fetchRecentArticles(existingIds);
     fetchRecentlyEditedArticles(existingIds);
   } else {
@@ -645,13 +658,36 @@ async function fetchArticlesByCategory(category, existingIds) {
   );
   const data = await response.json();
   const articles = data.query.categorymembers;
-  const popularArticlesList = document.querySelector("#most-viewed ul");
+  const featuredArticlesList = document.querySelector("#featured-articles ul");
   const recentArticlesList = document.querySelector("#recent-articles ul");
   const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-  populateArticleList(popularArticlesList, articles, existingIds, 10);
+  populateArticleList(featuredArticlesList, articles, existingIds, 10);
   populateArticleList(recentArticlesList, articles, existingIds, 10);
   populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const closeBannerBtn = document.getElementById('close-banner');
+  const banner = document.getElementById('banner');
+  const body = document.querySelector('body');
+
+  console.log('DOMContentLoaded'); // Debug log
+
+  if (banner) {
+    // Add the banner-present class to the body
+    body.classList.add('banner-present');
+
+    console.log('Banner found'); // Debug log
+
+    closeBannerBtn.addEventListener('click', function() {
+      console.log('Close button clicked'); // Debug log
+      banner.style.display = 'none';
+      // Remove the banner-present class from the body
+      body.classList.remove('banner-present');
+    });
+  }
+});
+
 
 async function generateCategoryFilterList() {
   console.log('Generating category filter list...');
@@ -686,6 +722,48 @@ document.addEventListener("DOMContentLoaded", fetchHomepageContent);
 EOF
 
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.css << EOL
+#banner {
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+}
+
+#banner p {
+  margin: 0;
+  color: white;
+  font-size: .875rem;
+}
+
+#banner a {
+  color: white !important;
+}
+
+.banner-content {
+  max-width: 80%;
+}
+
+#close-banner {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  right: .5rem;
+}
+
+body.banner-present {
+  padding-top: 40px;
+}
+
 #custom-homepage {
   display: flex;
   flex-wrap: wrap;
