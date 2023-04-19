@@ -456,7 +456,6 @@ const apiEndpoint = "/api.php";
 function truncateText(text, maxLength) {
   return text.length > maxLength ? text.substr(0, maxLength - 1) + "…" : text;
 }
-
 async function fetchArticleSnippet(title) {
   const response = await fetch(
     `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
