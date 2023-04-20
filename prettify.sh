@@ -374,10 +374,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   }
 }
 
-@media only screen and (max-width: 999px) {
+@media (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
     position: absolute !important;
-    top: 6rem;
+    top: 7rem;
     right: 1rem;
     left: inherit;
     background-color: white;
