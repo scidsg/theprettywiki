@@ -19,6 +19,13 @@ cp "$file" "$backup_file"
 # Enable The Pretty Wiki
 sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
 
+# Enable mobile view
+echo '$wgHooks["BeforePageDisplay"][] = "addViewportMetaTag";
+function addViewportMetaTag( $out, $skin ) {
+    $out->addHeadItem( "viewport", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" );
+    return true;
+}' | sudo tee -a /var/www/html/mediawiki/LocalSettings.php
+
 # Back up Vector Skin
 cd /var/www/html/mediawiki/skins
 cp -r Vector/ Vector-Backup/
@@ -102,6 +109,10 @@ body {
   font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
   font-size: 1.25rem;
   font-weight: normal;
+}
+
+.mw-page-container {
+  min-width: auto !important;
 }
 
 .mw-header {
