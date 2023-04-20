@@ -855,7 +855,7 @@ body.page-Main_Page .mw-body-content {
 .mw-header #mw-sidebar-button {
   display: none;
 }
-/* Responsive styles */
+
 @media (max-width: 768px) {
   #custom-homepage .columnGroup {
     flex-direction: column;
