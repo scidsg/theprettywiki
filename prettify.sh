@@ -105,10 +105,6 @@ body {
   font-family: 'Sans', sans-serif;
 }
 
-.mw-body {
-  padding: 0 !important;
-}
-
 .mw-logo-wordmark {
   font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
   font-size: 1.25rem;
