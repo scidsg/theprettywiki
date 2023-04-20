@@ -16,8 +16,9 @@ backup_file="/var/www/html/mediawiki/LocalSettings.php.bak"
 cd /var/www/html/mediawiki/
 cp "$file" "$backup_file"
 
-# Replace the line in the file
+# Enable The Pretty Wiki
 sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
+sed -i 's/^\(\$wgLogos = \[\)/#&/; s/^\(\s*'\''1x'\'' =>.*\)/#&/; s/^\(\s*'\''icon'\'' =>.*\)/#&/; s/^};/#&/' "$file"
 
 # Back up Vector Skin
 cd /var/www/html/mediawiki/skins
