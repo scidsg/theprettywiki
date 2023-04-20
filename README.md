@@ -31,6 +31,8 @@ You'll need to reuse your database credentials created during install.
 ![232121037-8e7c720b-7148-4692-afca-04f209370dfd 1](https://user-images.githubusercontent.com/28545431/232261159-43984bda-076e-46bf-ba7c-6ba3eece6c81.png)
 
  2. Download the LocalSettings.php file that's generated at the end of the installation process. Open it in a text editor and copy it's contents.
+ 
+ ### Step 3: Update Your Wiki's Settings
  3. Back in the Terminal, create a LocalSettings.php file and paste the downloaded contents:
  
  ```
@@ -39,7 +41,7 @@ nano /var/www/html/mediawiki/LocalSettings.php
 
 You should be able to enter your Wiki now.
 
-### Step 3: Prettify
+### Step 4: Prettify
 Now, we'll prettify your Wiki! In the terminal, run:
 
 ```
@@ -48,9 +50,9 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify
 
 Clear your cache or open a new Incognito or Private window, then load the page again. 
 
-![Screen Shot 2023-04-15 at 18 21 1](https://user-images.githubusercontent.com/28545431/232261092-045f519e-4279-4cd7-a5d4-c88299269424.png)
+![Screen Shot 2023-04-19 at 20 27 1](https://user-images.githubusercontent.com/28545431/233251029-3950ae39-9fcf-4537-939d-ebf0c9bc46b5.png)
 
-### Step 4 (optional): Make a Hidden Wiki
+### Step 5 (optional): Make a Hidden Wiki
 You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your site private.
 
 ```
