@@ -105,6 +105,10 @@ body {
   font-family: 'Sans', sans-serif;
 }
 
+.mw-body {
+  padding: 0 !important;
+}
+
 .mw-logo-wordmark {
   font-family: 'Serif','Linux Libertine','Georgia','Times',serif;
   font-size: 1.25rem;
@@ -165,6 +169,11 @@ h1, h2 {
 
 .vector-body .gallerytext p {
   font-size: .75rem;
+}
+
+body.page-Main_Page .mw-content-container {
+  position: relative !important;
+  top: -1rem;
 }
 
 .mw-header-content, .mw-header-aside {
@@ -398,6 +407,11 @@ a.extiw:visited, .mw-parser-output a.external:visited {
     padding: 1.5rem 1.5rem 1.5rem 2rem;
   }
 
+  .mw-page-container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
   .vector-below-page-title #vector-toc-collapsed-button {
     display: none !important;
   }
@@ -405,6 +419,20 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   #vector-toc-collapsed-button {
     float: right !important;
     transform: translateY(50%) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .mw-page-container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mw-page-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }
 
