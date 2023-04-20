@@ -18,7 +18,6 @@ cp "$file" "$backup_file"
 
 # Enable The Pretty Wiki
 sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
-sed -i 's/^\(\$wgLogos = \[\)/#&/; s/^\(\s*'\''1x'\'' =>.*\)/#&/; s/^\(\s*'\''icon'\'' =>.*\)/#&/; s/^};/#&/' "$file"
 
 # Back up Vector Skin
 cd /var/www/html/mediawiki/skins
@@ -289,6 +288,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
 #mw-sidebar-button::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22%3E %3Ctitle%3E menu %3C/title%3E %3Cpath d=%22M1 3v2h18V3zm0 8h18V9H1zm0 6h18v-2H1z%22/%3E %3C/svg%3E");
+}
+
+.mw-sidebar {
+  display: none !important;
 }
 
 .mw-sidebar {
