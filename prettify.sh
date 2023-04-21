@@ -230,10 +230,27 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 .mw-body .firstHeading {
   padding-bottom: 1rem;
   margin-bottom: 0;
+  border-bottom: none;
 }
 
 .mw-body {
   padding-top: 3.5rem;
+}
+
+.mw-body-header {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  align-items: flex-start;
+}
+
+.mw-body .firstHeading {
+  width: 100%;
+  border-bottom: none !important;
+}
+
+#vector-toc-collapsed-button {
+  order: 2;
 }
 
 .cdx-search-input--has-end-button {
@@ -414,7 +431,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 @media (max-width: 999px) {
   .mw-table-of-contents-container .sidebar-toc {
     position: absolute !important;
-    top: 7rem;
+    top: 6rem;
     right: 1rem;
     left: inherit;
     background-color: white;
@@ -432,10 +449,11 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   .vector-below-page-title #vector-toc-collapsed-button {
     display: none !important;
   }
+}
 
-  #vector-toc-collapsed-button {
-    float: right !important;
-    transform: translateY(50%) !important;
+@media (max-width: 768px) {
+  .mw-body h1 {
+    font-size: 2.5rem;
   }
 }
 
@@ -454,6 +472,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
   .mw-header {
     padding: .625rem 0;
+  }
+
+  .mw-body h1 {
+    font-size: 2rem;
   }
 }
 
