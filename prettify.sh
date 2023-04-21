@@ -241,7 +241,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   display: flex;
   width: 100%;
   border-bottom: 1px solid rgba(0,0,0,0.1);
-  align-items: flex-start;
+  align-items: first baseline;
 }
 
 .mw-body .firstHeading {
