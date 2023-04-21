@@ -24,11 +24,11 @@ echo "Adding viewport meta tag, theme-color, and favicons to LocalSettings.php..
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/favicon.ico
 mkdir images/ images/favicon/
 cd images/favicon/
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/android-chrome-192x192.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/android-chrome-512x512.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/apple-touch-icon.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon-16x16.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon-32x32.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/android-chrome-192x192.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/android-chrome-512x512.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/apple-touch-icon.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/favicon-16x16.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/favicon-32x32.png
 cat >> /var/www/html/mediawiki/LocalSettings.php << EOL
 \$wgHooks["BeforePageDisplay"][] = "addViewportMetaTag";
 function addViewportMetaTag( \$out, \$skin ) {
