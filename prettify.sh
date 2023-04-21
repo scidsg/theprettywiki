@@ -116,6 +116,11 @@ cat > custom/custom.less << EOL
        url("custom/fonts/serif/Merriweather-Regular.woff") format("woff");
 }
 
+::selection {
+  background-color: #333;
+  color: white;
+}
+
 body {
   background-color: white;
   color: #333;
