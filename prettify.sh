@@ -19,12 +19,29 @@ cp "$file" "$backup_file"
 # Enable The Pretty Wiki
 sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
 
-# Enable mobile view
-echo '$wgHooks["BeforePageDisplay"][] = "addViewportMetaTag";
-function addViewportMetaTag( $out, $skin ) {
-    $out->addHeadItem( "viewport", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" );
+# Mobile enablement and enhancements 
+echo "Adding viewport meta tag, theme-color, and favicons to LocalSettings.php..."
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/favicon.ico
+mkdir images/ images/favicon/
+cd images/favicon/
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/android-chrome-192x192.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/android-chrome-512x512.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/apple-touch-icon.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon-16x16.png
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon-32x32.png
+cat >> /var/www/html/mediawiki/LocalSettings.php << EOL
+\$wgHooks["BeforePageDisplay"][] = "addViewportMetaTag";
+function addViewportMetaTag( \$out, \$skin ) {
+    \$out->addHeadItem( "viewport", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" );
+    \$out->addHeadItem( "theme-color", "<meta name=\"theme-color\" content=\"#333\">" );
+    \$out->addHeadItem( "apple-touch-icon", "<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/images/favicon/apple-touch-icon.png\">" );
+    \$out->addHeadItem( "favicon-32x32", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/favicon-32x32.png\" sizes=\"32x32\">" );
+    \$out->addHeadItem( "favicon-16x16", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/favicon-16x16.png\" sizes=\"16x16\">" );
+    \$out->addHeadItem( "android-chrome-192x192", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/android-chrome-192x192.png\" sizes=\"192x192\">" );
+    \$out->addHeadItem( "android-chrome-512x512", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/android-chrome-512x512.png\" sizes=\"512x512\">" );
     return true;
-}' | sudo tee -a /var/www/html/mediawiki/LocalSettings.php
+}
+EOL
 
 # Back up Vector Skin
 cd /var/www/html/mediawiki/skins
@@ -434,6 +451,10 @@ a.extiw:visited, .mw-parser-output a.external:visited {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
+
+  .mw-header {
+    padding: .625rem 0;
+  }
 }
 
 EOL
@@ -614,15 +635,15 @@ async function fetchHomepageContent() {
     // Call generateCategoryFilterList before fetching articles
     generateCategoryFilterList();
 
-    const featuredArticlesPromise = fetchFeaturedArticles();
     const recentArticlesPromise = fetchRecentArticles(new Set());
     const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
+    const featuredArticlesPromise = fetchFeaturedArticles();
 
     // Await the promises to ensure that recentArticles is defined
     await Promise.all([
-        featuredArticlesPromise,
         recentArticlesPromise,
         recentlyEditedArticlesPromise,
+        featuredArticlesPromise,
     ]);
 }
 
@@ -775,12 +796,28 @@ async function fetchArticlesByCategory(category, existingIds) {
     );
     const data = await response.json();
     const articles = data.query.categorymembers;
+
+    const featuredArticles = await fetchFeaturedArticles();
+    const recentArticles = await fetchRecentArticles(existingIds);
+    const recentlyEditedArticles = await fetchRecentlyEditedArticles(existingIds);
+
     const featuredArticlesList = document.querySelector("#featured-articles ul");
     const recentArticlesList = document.querySelector("#recent-articles ul");
     const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-    populateArticleList(featuredArticlesList, articles, existingIds, 10);
-    populateArticleList(recentArticlesList, articles, existingIds, 10);
-    populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
+
+    const filteredFeaturedArticles = articles.filter(article =>
+        featuredArticles.some(featuredArticle => featuredArticle.title === article.title)
+    );
+    const filteredRecentArticles = articles.filter(article =>
+        recentArticles.some(recentArticle => recentArticle.title === article.title)
+    );
+    const filteredRecentlyEditedArticles = articles.filter(article =>
+        recentlyEditedArticles.some(recentlyEditedArticle => recentlyEditedArticle.title === article.title)
+    );
+
+    populateArticleList(featuredArticlesList, filteredFeaturedArticles, existingIds, 10);
+    populateArticleList(recentArticlesList, filteredRecentArticles, existingIds, 10);
+    populateArticleList(recentlyEditedArticlesList, filteredRecentlyEditedArticles, existingIds, 10);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -907,7 +944,7 @@ body.page-Main_Page .mw-content-container {
     list-style-type: none;
     padding: 1rem 0;
     margin: 0 !important;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .category-filters ul li {
