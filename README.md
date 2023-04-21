@@ -28,22 +28,17 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/install-
 You'll need to reuse your database credentials created during install.
 
 ### Step 2: Enable Your Wiki
- 1. Complete the MediaWiki installation by visiting your server's IP address or domain name.
+ 1. Complete the MediaWiki installation by visiting your server's IP address or domain name. When it's complete you'll download LocalSettings.php
 
 ![232121037-8e7c720b-7148-4692-afca-04f209370dfd 1](https://user-images.githubusercontent.com/28545431/232261159-43984bda-076e-46bf-ba7c-6ba3eece6c81.png)
 
- 2. Download the LocalSettings.php file that's generated at the end of the installation process. Open it in a text editor and copy it's contents.
- 
- ### Step 3: Update Your Wiki's Settings
- 3. Back in the Terminal, create a LocalSettings.php file and paste the downloaded contents:
+ 2. Back in the Terminal, create a LocalSettings.php file and paste the downloaded contents:
  
  ```
 nano /var/www/html/mediawiki/LocalSettings.php 
  ```
 
-You should be able to enter your Wiki now.
-
-### Step 4: Prettify
+### Step 3: Prettify
 Now, we'll prettify your Wiki! In the terminal, run:
 
 ```
