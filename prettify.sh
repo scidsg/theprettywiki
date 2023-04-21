@@ -180,6 +180,10 @@ h1, h2 {
   font-size: .875rem;
 }
 
+.vector-menu-heading-label {
+  font-size: .875rem;
+}
+
 .vector-body .gallerytext p {
   font-size: .75rem;
 }
@@ -449,6 +453,11 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   .vector-below-page-title #vector-toc-collapsed-button {
     display: none !important;
   }
+
+  .mw-body {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -466,8 +475,8 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
 @media (max-width: 480px) {
   .mw-page-container {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
   }
 
   .mw-header {
