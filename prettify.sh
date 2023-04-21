@@ -497,269 +497,330 @@ EOL
 
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.js << 'EOF'
 const apiEndpoint = "/api.php";
+
 function truncateText(text, maxLength) {
-  return text.length > maxLength ? text.substr(0, maxLength - 1) + "…" : text;
+    return text.length > maxLength ? text.substr(0, maxLength - 1) + "..." : text;
 }
 
 async function fetchArticleSnippet(title) {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const pages = data.query.pages;
-   const pageInfo = pages[0];
-   const created = pageInfo.created ? new Date(pageInfo.created) : null;
-   const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
-  const fullText = pageInfo.extract;
-  if (!fullText) {
+    const response = await fetch(
+        `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const pages = data.query.pages;
+    const pageInfo = pages[0];
+    const created = pageInfo.created ? new Date(pageInfo.created) : null;
+    const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
+    const fullText = pageInfo.extract;
+    if (!fullText) {
     console.warn(`No extract found for ${title}`);
     return {
-      title: pageInfo.title,
-      firstSentence: '',
-      lastModified: lastModified,
-      url: pageInfo.fullurl,
+        title: pageInfo.title,
+        firstSentence: '',
+        created: created,
+        lastModified: lastModified,
+        url: pageInfo.fullurl,
+        };
+    }
+    const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
+    const firstRelevantParagraph = paragraphs[0] || '';
+    return {
+        title: pageInfo.title,
+        firstSentence: truncateText(firstRelevantParagraph, 150),
+        created: created,
+        lastModified: lastModified,
+        url: pageInfo.fullurl,
     };
-  }
-  const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
-  const firstRelevantParagraph = paragraphs[0] || '';
-  return {
-    title: pageInfo.title,
-    firstSentence: truncateText(firstRelevantParagraph, 150),
-    created: created,
-    lastModified: lastModified,
-    url: pageInfo.fullurl,
-  };
 }
 
 async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10) {
-  let addedArticles = 0;
-  for (const article of articles) {
-    const articleId = generateArticleId(article.title);
-    if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Main Page') {
-      continue;
+    let addedArticles = 0;
+    for (const article of articles) {
+        const articleId = generateArticleId(article.title);
+        if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Main Page') {
+            continue;
+        }
+        if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Featured articles') {
+            continue;
+        }
+        const snippet = await fetchArticleSnippet(article.title);
+        const listItem = document.createElement("li");
+        const displayDate = snippet.lastModified ?
+            `Last modified: ${snippet.lastModified.toLocaleDateString()}` :
+            snippet.firstPublished ?
+            `First published: ${snippet.firstPublished.toLocaleDateString()}` :
+            "Unknown";
+        listItem.innerHTML = `
+<h3><a href="${snippet.url}">${snippet.title}</a></h3>
+<small>${displayDate}</small>
+<p>${snippet.firstSentence}</p>
+`;
+        listElement.appendChild(listItem);
+        existingIds.add(articleId);
+        addedArticles++;
     }
-    if (existingIds.has(articleId) || addedArticles >= limit || article.title === 'Featured articles') {
-      continue;
-    }
-    const snippet = await fetchArticleSnippet(article.title);
-    const listItem = document.createElement("li");
-    const displayDate = snippet.lastModified
-      ? `Last modified: ${snippet.lastModified.toLocaleDateString()}`
-      : snippet.firstPublished
-      ? `First published: ${snippet.firstPublished.toLocaleDateString()}`
-      : "Unknown";
-    listItem.innerHTML = `
-      <h3><a href="${snippet.url}">${snippet.title}</a></h3>
-      <small>${displayDate}</small>
-      <p>${snippet.firstSentence}</p>
-    `;
-    listElement.appendChild(listItem);
-    existingIds.add(articleId);
-    addedArticles++;
-  }
-  // Hide spinner
-  listElement.nextElementSibling.style.display = "none";
+    listElement.nextElementSibling.style.display = "none";
 }
 
-// Add this new function to fetch featured articles
 async function fetchFeaturedArticles() {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent('Featured articles')}&explaintext=1&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const pages = data.query.pages;
-  const pageInfo = pages[0];
-  const fullText = pageInfo.extract;
+    const response = await fetch(
+        `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent('Featured articles')}&explaintext=1&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const pages = data.query.pages;
+    const pageInfo = pages[0];
+    const fullText = pageInfo.extract;
 
-  if (!fullText) {
-    console.warn("No extract found for Featured articles");
-    return [];
-  }
+    if (!fullText) {
+        console.warn("No extract found for Featured articles");
+        return [];
+    }
 
-  // Split the text content into lines and filter out empty lines
-  const featuredArticleTitles = fullText
-    .split("\n")
-    .filter((title) => title.trim().length > 0);
+    const featuredArticleTitles = fullText
+        .split("\n")
+        .filter((title) => title.trim().length > 0);
 
-  const featuredArticlesList = document.querySelector("#featured-articles ul");
-  const existingIds = new Set();
-  // Use the existing populateArticleList() function to populate the list with the featured articles
-  await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
+    const featuredArticlesList = document.querySelector("#featured-articles ul");
+    const existingIds = new Set();
+    await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
 }
 
 function generateArticleId(title) {
-  return title.trim().toLowerCase().replace(/\s+/g, "-");
+    return title.trim().toLowerCase().replace(/\s+/g, "-");
 }
 
 async function fetchRecentArticles(existingTitles) {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=50&apdir=descending&apfilterredir=nonredirects&apnamespace=0&approp=creation%7Ctimestamp&aporderby=creation&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const articles = data.query.allpages;
+    const response = await fetch(
+        `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=50&apdir=descending&apfilterredir=nonredirects&apnamespace=0&approp=creation%7Ctimestamp&aporderby=creation&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const articles = data.query.allpages;
 
-  const recentArticlesList = document.querySelector("#recent-articles ul");
-  populateArticleList(recentArticlesList, articles, existingTitles, 10);
+    const recentArticlesList = document.querySelector("#recent-articles ul");
+    populateArticleList(recentArticlesList, articles, existingTitles, 10);
 }
 
 async function fetchRecentlyEditedArticles(existingTitles) {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=50&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const articles = data.query.recentchanges;
-  const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-  populateArticleList(recentlyEditedArticlesList, articles, existingTitles, 10);
+    const response = await fetch(
+        `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=50&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const articles = data.query.recentchanges;
+    const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
+    populateArticleList(recentlyEditedArticlesList, articles, existingTitles, 10);
 }
 
 async function fetchHomepageContent() {
-  const featuredArticlesPromise = fetchFeaturedArticles(); // Featured articles column
-  const recentArticlesPromise = fetchRecentArticles(new Set());
-  const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
+    // Call generateCategoryFilterList before fetching articles
+    generateCategoryFilterList();
 
-  // Await the promises to ensure that recentArticles is defined
-  await Promise.all([
-    featuredArticlesPromise,
-    recentArticlesPromise,
-    recentlyEditedArticlesPromise,
-  ]);
+    const featuredArticlesPromise = fetchFeaturedArticles();
+    const recentArticlesPromise = fetchRecentArticles(new Set());
+    const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
 
-  generateCategoryFilterList();
+    // Await the promises to ensure that recentArticles is defined
+    await Promise.all([
+        featuredArticlesPromise,
+        recentArticlesPromise,
+        recentlyEditedArticlesPromise,
+    ]);
 }
 
 async function fetchTopCategories(limit = 3) {
-  try {
-    const response = await fetch(
-      `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=descending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5`
-    );
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        const response = await fetch(
+            `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=descending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5&gaclimit=${limit}`
+        );
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data.query) {
+            console.error('Error fetching top categories: data.query is undefined');
+            return [];
+        }
+        const categories = Object.values(data.query.pages);
+        let topCategories = [];
+        for (let i = 0; i < categories.length && topCategories.length < limit; i++) {
+            const category = categories[i];
+            if (!category.hidden) {
+                topCategories.push({
+                    title: category.title.replace("Category:", ""),
+                });
+            }
+        }
+        return topCategories;
+    } catch (error) {
+        console.error('Error fetching top categories:', error);
+        return [];
     }
-    const data = await response.json();
-    if (!data.query) {
-      console.error('Error fetching top categories: data.query is undefined');
-      return [];
-    }
-    const categories = Object.values(data.query.pages);
-    let topCategories = [];
-    for (let i = 0; i < categories.length && topCategories.length < limit; i++) {
-      const category = categories[i];
-      if (!category.hidden) {
-        topCategories.push({
-          title: category.title.replace("Category:", ""),
+}
+
+async function fetchAllCategories() {
+    try {
+        const response = await fetch(
+            `${apiEndpoint}?action=query&format=json&list=allcategories&aclimit=max&formatversion=2&origin=*`
+        );
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!data.query) {
+            console.error('Error fetching all categories: data.query is undefined');
+            return [];
+        }
+        const categories = data.query.allcategories;
+
+        // Add this console.log statement
+        console.log("Fetched all categories:", categories);
+
+        return categories.map((category) => {
+            return { title: category.category }; // Change this line
         });
-      }
+
+    } catch (error) {
+        console.error('Error fetching all categories:', error);
+        return [];
     }
-    return topCategories;
-  } catch (error) {
-    console.error('Error fetching top categories:', error);
-    return [];
-  }
 }
 
 async function generateCategoryFilterList() {
-  const topCategories = await fetchTopCategories();
-  const categoryFilters = document.querySelector(".category-filters");
-  const filterList = document.createElement("ul");
-  // Add the "All" category
-  const allItem = document.createElement("li");
-  allItem.innerHTML = '<a href="#" data-category="all">All</a>';
-  filterList.appendChild(allItem);
-  // Add the fetched categories
-  for (const category of topCategories) {
-    const listItem = document.createElement("li");
-    listItem.innerHTML = `<a href="#" data-category="${category.title}">${category.title}</a>`;
-    filterList.appendChild(listItem);
-  }
-  categoryFilters.appendChild(filterList);
+    console.log('Generating category filter list...');
+    const topCategories = await fetchTopCategories();
+    const allCategories = await fetchAllCategories();
+
+    console.log("Top categories:", topCategories);
+    console.log("All categories:", allCategories);
+
+    const categoryFilters = document.querySelector(".category-filters");
+    console.log("Category Filters:", categoryFilters);
+    const filterList = document.createElement("ul");
+
+    const allItem = document.createElement("li");
+    allItem.innerHTML = '<a href="#" data-category="all" class="active">All</a>';
+    filterList.appendChild(allItem);
+    for (const category of topCategories) {
+        const listItem = document.createElement("li");
+        const categoryTitle = category.title || "";
+        listItem.innerHTML = `<a href="#" data-category="${categoryTitle}">${categoryTitle.replace("Category:", "")}</a>`;
+
+        filterList.appendChild(listItem);
+    }
+
+    const moreItem = document.createElement("li");
+    moreItem.innerHTML = `<a href="#" class="more-categories">More</a>`;
+    filterList.appendChild(moreItem);
+
+    const dropdownList = document.createElement("ul");
+    dropdownList.classList.add("dropdown-list");
+    dropdownList.style.display = "none";
+    for (const category of allCategories) {
+        const listItem = document.createElement("li");
+        const categoryTitle = category.title || "";
+        listItem.innerHTML = `<a href="#" data-category="${categoryTitle}">${categoryTitle.replace("Category:", "")}</a>`;
+        dropdownList.appendChild(listItem);
+    }
+
+    console.log("Dropdown list:", dropdownList);
+
+    categoryFilters.appendChild(filterList);
+    categoryFilters.appendChild(dropdownList);
+
+    const filterLinks = document.querySelectorAll(".category-filters a");
+    filterLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (event.target.classList.contains("more-categories")) {
+                dropdownList.style.display = dropdownList.style.display === "none" ? "block" : "none";
+            } else {
+                const category = event.target.dataset.category;
+                applyCategoryFilter(category);
+            }
+        });
+    });
 }
 
 function applyCategoryFilter(category) {
-  const allCategories = document.querySelectorAll(".category-filters a");
-  allCategories.forEach((cat) => cat.classList.remove("active"));
-  if (category === "all") {
-    document.querySelector(".category-filters a[data-category='all']").classList.add("active");
-  } else {
-    document.querySelector(`.category-filters a[data-category='${category}']`).classList.add("active");
-  }
-  const allColumns = document.querySelectorAll(".column ul");
-  allColumns.forEach((column) => {
-    column.innerHTML = "";
-  });
-  const existingIds = new Set();
-  if (category === "all") {
-    fetchFeaturedArticles(existingIds);
-    fetchRecentArticles(existingIds);
-    fetchRecentlyEditedArticles(existingIds);
-  } else {
-    fetchArticlesByCategory(category, existingIds);
-  }
+    const allCategories = document.querySelectorAll(".category-filters a");
+    allCategories.forEach((cat) => cat.classList.remove("active"));
+    if (category === "all") {
+        document.querySelector(".category-filters a[data-category='all']").classList.add("active");
+    } else {
+        document.querySelector(`.category-filters a[data-category='${category}']`).classList.add("active");
+    }
+    const allColumns = document.querySelectorAll(".column ul");
+    allColumns.forEach((column) => {
+        column.innerHTML = "";
+    });
+    const existingIds = new Set();
+    if (category === "all") {
+        fetchFeaturedArticles(existingIds);
+        fetchRecentArticles(existingIds);
+        fetchRecentlyEditedArticles(existingIds);
+    } else {
+        fetchArticlesByCategory(category, existingIds);
+    }
 }
 
 async function fetchArticlesByCategory(category, existingIds) {
-  const response = await fetch(
-    `${apiEndpoint}?action=query&format=json&list=categorymembers&cmtitle=Category:${encodeURIComponent(category)}&cmlimit=50&cmnamespace=0&formatversion=2&origin=*`
-  );
-  const data = await response.json();
-  const articles = data.query.categorymembers;
-  const featuredArticlesList = document.querySelector("#featured-articles ul");
-  const recentArticlesList = document.querySelector("#recent-articles ul");
-  const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-  populateArticleList(featuredArticlesList, articles, existingIds, 10);
-  populateArticleList(recentArticlesList, articles, existingIds, 10);
-  populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
+    const response = await fetch(
+        `${apiEndpoint}?action=query&format=json&list=categorymembers&cmtitle=Category:${encodeURIComponent(category)}&cmlimit=50&cmnamespace=0&formatversion=2&origin=*`
+    );
+    const data = await response.json();
+    const articles = data.query.categorymembers;
+    const featuredArticlesList = document.querySelector("#featured-articles ul");
+    const recentArticlesList = document.querySelector("#recent-articles ul");
+    const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
+    populateArticleList(featuredArticlesList, articles, existingIds, 10);
+    populateArticleList(recentArticlesList, articles, existingIds, 10);
+    populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const closeBannerBtn = document.getElementById('close-banner');
-  const banner = document.getElementById('banner');
-  const body = document.querySelector('body');
+document.addEventListener('DOMContentLoaded', function () {
+  const menuToggle = document.querySelector('.menu-toggle');
+  const menu = document.querySelector('.nav-menu');
+  const menuLinks = document.querySelectorAll('.nav-menu a');
 
-  console.log('DOMContentLoaded'); // Debug log
+  menuToggle.addEventListener('click', function () {
+    menu.classList.toggle('show');
+  });
 
-  if (banner) {
-    // Add the banner-present class to the body
-    body.classList.add('banner-present');
-
-    console.log('Banner found'); // Debug log
-
-    closeBannerBtn.addEventListener('click', function() {
-      console.log('Close button clicked'); // Debug log
-      banner.style.display = 'none';
-      // Remove the banner-present class from the body
-      body.classList.remove('banner-present');
-    });
-  }
-});
-
-
-async function generateCategoryFilterList() {
-  console.log('Generating category filter list...');
-  const topCategories = await fetchTopCategories();
-  const categoryFilters = document.querySelector(".category-filters");
-  const filterList = document.createElement("ul");
-  // Add the "All" category
-  const allItem = document.createElement("li");
-  allItem.innerHTML = '<a href="#" data-category="all" class="active">All</a>';
-  filterList.appendChild(allItem);
-  // Add the fetched categories
-  for (const category of topCategories) {
-    const listItem = document.createElement("li");
-    listItem.innerHTML = `<a href="#" data-category="${category.title}">${category.title}</a>`;
-    filterList.appendChild(listItem);
-  }
-
-  categoryFilters.appendChild(filterList);
-  // Add click event listeners to filter categories
-  const filterLinks = document.querySelectorAll(".category-filters a");
-  filterLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      const category = event.target.dataset.category;
-      applyCategoryFilter(category);
+  menuLinks.forEach(link => {
+    link.addEventListener('click', function () {
+      console.log('Category link clicked'); // Add this line
+      menu.classList.remove('show');
     });
   });
-}
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBannerBtn = document.getElementById('close-banner');
+    const banner = document.getElementById('banner');
+    const body = document.querySelector('body');
+
+    console.log('DOMContentLoaded'); // Debug log
+
+    if (banner) {
+        body.classList.add('banner-present');
+
+        console.log('Banner found'); // Debug log
+
+        closeBannerBtn.addEventListener('click', function() {
+            console.log('Close button clicked'); // Debug log
+            banner.style.display = 'none';
+            // Remove the banner-present class from the body
+            body.classList.remove('banner-present');
+        });
+    }
+});
+
+$(document).ready(function() {
+
+  $('.dropdown-list a').on('click', function() {
+    $('.dropdown-list').addClass('hide');
+  });
+
+});
 
 document.addEventListener("DOMContentLoaded", fetchHomepageContent);
 
@@ -767,143 +828,210 @@ EOF
 
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.css << EOL
 #banner {
-  background-color: #333;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
 }
 
 #banner p {
-  margin: 0;
-  color: white;
-  font-size: .875rem;
+    margin: 0;
+    color: white;
+    font-size: .875rem;
 }
 
 #banner a {
-  color: white !important;
+    color: white !important;
 }
 
 .banner-content {
-  max-width: 80%;
+    max-width: 80%;
 }
 
 #close-banner {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  position: absolute;
-  right: .5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    position: absolute;
+    right: .5rem;
 }
 
 body.banner-present {
-  padding-top: 40px;
+    padding-top: 40px;
 }
 
 #custom-homepage {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 0 20px 0 !important;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 20px 0 !important;
 }
+
 body.page-Main_Page .mw-content-container {
-  max-width: 100% !important;
+    max-width: 100% !important;
+    grid-column: sidebar / content;
 }
+
 .columnGroup {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 2rem;
-  width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2rem;
+    width: 100%;
 }
+
 .category-filters {
-  display: flex;
-  width: 100%;
-  overflow-x: auto ;
-  flex-direction: row;
-  justify-content: center;
-  margin-bottom: 1rem;
-  justify-content: flex-start;
+    display: flex;
+    width: fit-content;
+    overflow: inherit;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 1rem;
+    justify-content: flex-start;
+    max-width: 100%;
 }
+
 .category-filters ul {
-  display: flex;
-  flex-wrap: nowrap;
-  list-style-type: none;
-  padding: 1rem 0;
-  margin: 0 !important;
+    display: flex;
+    flex-wrap: nowrap;
+    list-style-type: none;
+    padding: 1rem 0;
+    margin: 0 !important;
+    overflow-x: scroll;
 }
+
 .category-filters ul li {
-  white-space: nowrap;
-  list-style: none;
-  font-size: .875rem;
+    white-space: nowrap;
+    list-style: none;
+    font-size: .875rem;
 }
+
 .category-filters ul li a {
-  text-decoration: none !important;
-  padding: 1rem;
+    text-decoration: none !important;
+    padding: 1rem;
 }
+
 .category-filters a.active {
-  border-bottom: 3px solid #333;
-  background-color: #fff;
+    border-bottom: 3px solid #333;
+    background-color: #fff;
 }
-#mw-sidebar-checkbox:not(:checked) ~ .vector-sidebar-container-no-toc ~ .mw-content-container {
-  padding-left: 0;
+
+.category-filters {
+    position: relative;
 }
+
+.dropdown-list {
+    display: none;
+    position: relative;
+    z-index: 100;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: .5rem 0 !important;
+    width: fit-content;
+    max-width: 300px;
+    position: absolute;
+    height: 240px;
+    overflow: scroll;
+    top: 3rem;
+    right: 0;
+}
+
+.dropdown-list li {
+    display: block;
+    white-space: inherit !important;
+}
+
+.dropdown-list a {
+    display: block;
+    padding: .5rem 1rem !important;
+}
+
+.dropdown-list a.active {
+  border-left: 3px solid #333;
+  border-bottom: none;
+}
+
+.dropdown-list li:last-child {
+    margin-bottom: 0;
+}
+
+#mw-sidebar-checkbox:not(:checked)~.vector-sidebar-container-no-toc~.mw-content-container {
+    padding-left: 0;
+}
+
+.hide {
+    display: none;
+}
+
 .column {
-  flex: 1;
-  max-width: 100%;
+    flex: 1;
+    max-width: 100%;
 }
+
 .column h2 {
-  margin-bottom: 1rem;
-  font-size: 1.125rem;
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
 }
+
 .column h3 {
-  margin-bottom: .5rem;
+    margin-bottom: .5rem;
 }
-.column h3 + small {
-  color: #595959;
+
+.column h3+small {
+    color: #595959;
 }
-.column h3 + small + p {
-   margin-top: .25rem;
+
+.column h3+small+p {
+    margin-top: .25rem;
 }
+
 .column ul {
-  list-style-type: none;
-  padding: 0;
-  margin-left: 0 !important;
+    list-style-type: none;
+    padding: 0;
+    margin-left: 0 !important;
 }
+
 .column li {
-  margin-bottom: 5px;
-  list-style: none;
+    margin-bottom: 5px;
+    list-style: none;
 }
+
 body.page-Main_Page .vector-article-toolbar {
-  display: none;
+    display: none;
 }
+
 body.page-Main_Page .mw-body-header {
-  display: none;
+    display: none;
 }
+
 body.page-Main_Page .mw-body {
-  padding-top: 0;
-  padding-right: 0;
+    padding-top: 0;
+    padding-right: 0;
 }
+
 body.page-Main_Page .mw-body-content {
-  margin-top: 0;
+    margin-top: 0;
 }
+
 .mw-header #mw-sidebar-button {
-  display: none;
+    display: none;
 }
 
 @media (max-width: 768px) {
-  #custom-homepage .columnGroup {
-    flex-direction: column;
-  }
+    #custom-homepage .columnGroup {
+        flex-direction: column;
+    }
 }
-
 EOL
 
 # Append LocalSettings
