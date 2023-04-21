@@ -513,13 +513,13 @@ async function fetchArticleSnippet(title) {
     const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
     const fullText = pageInfo.extract;
     if (!fullText) {
-    console.warn(`No extract found for ${title}`);
-    return {
-        title: pageInfo.title,
-        firstSentence: '',
-        created: created,
-        lastModified: lastModified,
-        url: pageInfo.fullurl,
+        console.warn(`No extract found for ${title}`);
+        return {
+            title: pageInfo.title,
+            firstSentence: '',
+            created: created,
+            lastModified: lastModified,
+            url: pageInfo.fullurl,
         };
     }
     const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
@@ -728,24 +728,23 @@ async function generateCategoryFilterList() {
 
     const filterLinks = document.querySelectorAll(".category-filters a");
     filterLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-        event.preventDefault();
-        const moreCategoriesLink = document.querySelector('.more-categories');
-        if (event.target.classList.contains("more-categories")) {
-            dropdownList.style.display = dropdownList.style.display === "none" ? "block" : "none";
-        } else {
-            const category = event.target.dataset.category;
-            applyCategoryFilter(category);
-            if (dropdownList.contains(event.target)) {
-                dropdownList.style.display = "none";
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            const moreCategoriesLink = document.querySelector('.more-categories');
+            if (event.target.classList.contains("more-categories")) {
+                dropdownList.style.display = dropdownList.style.display === "none" ? "block" : "none";
+            } else {
+                const category = event.target.dataset.category;
+                applyCategoryFilter(category);
+                if (dropdownList.contains(event.target)) {
+                    dropdownList.style.display = "none";
+                }
+                if (moreCategoriesLink) {
+                    moreCategoriesLink.classList.remove("active");
+                }
             }
-            if (moreCategoriesLink) {
-                moreCategoriesLink.classList.remove("active");
-            }
-        }
+        });
     });
-});
-
 }
 
 function applyCategoryFilter(category) {
@@ -784,21 +783,25 @@ async function fetchArticlesByCategory(category, existingIds) {
     populateArticleList(recentlyEditedArticlesList, articles, existingIds, 10);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  const menuToggle = document.querySelector('.menu-toggle');
-  const menu = document.querySelector('.nav-menu');
-  const menuLinks = document.querySelectorAll('.nav-menu a');
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menu = document.querySelector('.nav-menu');
+    const menuLinks = document.querySelectorAll('.nav-menu a');
 
-  menuToggle.addEventListener('click', function () {
-    menu.classList.toggle('show');
-  });
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            menu.classList.toggle('show');
+        });
+    } else {
+        console.warn("menuToggle is not found");
+    }
 
-  menuLinks.forEach(link => {
-    link.addEventListener('click', function () {
-      console.log('Category link clicked'); // Add this line
-      menu.classList.remove('show');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            console.log('Category link clicked');
+            menu.classList.remove('show');
+        });
     });
-  });
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -823,7 +826,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener("DOMContentLoaded", fetchHomepageContent);
-
 EOF
 
 cat > /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/custom/homepage.css << EOL
