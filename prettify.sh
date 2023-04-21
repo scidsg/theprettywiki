@@ -728,16 +728,24 @@ async function generateCategoryFilterList() {
 
     const filterLinks = document.querySelectorAll(".category-filters a");
     filterLinks.forEach((link) => {
-        link.addEventListener("click", (event) => {
-            event.preventDefault();
-            if (event.target.classList.contains("more-categories")) {
-                dropdownList.style.display = dropdownList.style.display === "none" ? "block" : "none";
-            } else {
-                const category = event.target.dataset.category;
-                applyCategoryFilter(category);
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const moreCategoriesLink = document.querySelector('.more-categories');
+        if (event.target.classList.contains("more-categories")) {
+            dropdownList.style.display = dropdownList.style.display === "none" ? "block" : "none";
+        } else {
+            const category = event.target.dataset.category;
+            applyCategoryFilter(category);
+            if (dropdownList.contains(event.target)) {
+                dropdownList.style.display = "none";
             }
-        });
+            if (moreCategoriesLink) {
+                moreCategoriesLink.classList.remove("active");
+            }
+        }
     });
+});
+
 }
 
 function applyCategoryFilter(category) {
@@ -812,14 +820,6 @@ document.addEventListener('DOMContentLoaded', function() {
             body.classList.remove('banner-present');
         });
     }
-});
-
-$(document).ready(function() {
-
-  $('.dropdown-list a').on('click', function() {
-    $('.dropdown-list').addClass('hide');
-  });
-
 });
 
 document.addEventListener("DOMContentLoaded", fetchHomepageContent);
@@ -933,9 +933,9 @@ body.page-Main_Page .mw-content-container {
     position: relative;
     z-index: 100;
     background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: .325rem;
+    box-shadow: 0 10px 1.5rem -1rem rgba(0,0,0,0.2);
     padding: .5rem 0 !important;
     width: fit-content;
     max-width: 300px;
@@ -1017,6 +1017,7 @@ body.page-Main_Page .mw-body-header {
 body.page-Main_Page .mw-body {
     padding-top: 0;
     padding-right: 0;
+    padding-left: 0;
 }
 
 body.page-Main_Page .mw-body-content {
