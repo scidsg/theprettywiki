@@ -832,6 +832,7 @@ body.banner-present {
 
 body.page-Main_Page .mw-content-container {
     max-width: 100% !important;
+    grid-column: sidebar / content;
 }
 
 .columnGroup {
