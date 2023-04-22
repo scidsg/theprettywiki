@@ -1,6 +1,13 @@
 # The Pretty Wiki
 
-https://try.thepretty.wiki
+## Links
+[🧑‍💻 Try The Pretty Wiki](https://try.thepretty.wiki)
+
+[📖 Documentation](https://github.com/scidsg/the-pretty-wiki/tree/main/docs)
+
+[🌎 Public Site](https://thepretty.wiki)
+
+------
 
 ![wiki-cover](https://user-images.githubusercontent.com/28545431/233732698-55df5177-6e37-4688-b7b1-058fff1ae6fc.png)
 
