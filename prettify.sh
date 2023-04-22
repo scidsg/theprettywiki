@@ -649,23 +649,30 @@ function generateArticleId(title) {
 
 async function fetchRecentArticles(existingTitles) {
     const response = await fetch(
-        `${apiEndpoint}?action=query&format=json&list=allpages&aplimit=50&apdir=descending&apfilterredir=nonredirects&apnamespace=0&approp=creation%7Ctimestamp&aporderby=creation&formatversion=2&origin=*`
+        `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=100&rcprop=title%7Ctimestamp&rcshow=!minor%7C!redirect&rcnamespace=0&formatversion=2&origin=*`
     );
     const data = await response.json();
-    const articles = data.query.allpages;
+    const recentChanges = data.query.recentchanges;
+
+    const newPages = recentChanges.filter(change => change.type === "new");
+    newPages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     const recentArticlesList = document.querySelector("#recent-articles ul");
-    populateArticleList(recentArticlesList, articles, existingTitles, 10);
+    populateArticleList(recentArticlesList, newPages, existingTitles, 10);
 }
 
 async function fetchRecentlyEditedArticles(existingTitles) {
     const response = await fetch(
-        `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=50&rcprop=title&rcshow=!minor&formatversion=2&origin=*`
+        `${apiEndpoint}?action=query&format=json&list=recentchanges&rclimit=100&rcprop=title%7Ctimestamp&rcshow=!minor%7C!redirect&rcnamespace=0&formatversion=2&origin=*`
     );
     const data = await response.json();
-    const articles = data.query.recentchanges;
+    const recentChanges = data.query.recentchanges;
+
+    const editedPages = recentChanges.filter(change => change.type !== "new");
+    editedPages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
     const recentlyEditedArticlesList = document.querySelector("#recently-edited ul");
-    populateArticleList(recentlyEditedArticlesList, articles, existingTitles, 10);
+    populateArticleList(recentlyEditedArticlesList, editedPages, existingTitles, 10);
 }
 
 async function fetchHomepageContent() {
