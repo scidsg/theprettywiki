@@ -240,6 +240,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
   padding-bottom: 1rem;
   margin-bottom: 0;
   border-bottom: none;
+  order: -1;
 }
 
 .mw-body {
