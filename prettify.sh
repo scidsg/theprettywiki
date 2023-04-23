@@ -297,6 +297,7 @@ a.extiw:visited, .mw-parser-output a.external:visited {
 
 .vector-search-box-vue .searchButton {
   background-size: 1rem;
+  z-index: 0;
 }
 
 .vector-body h3 {
@@ -1194,7 +1195,7 @@ body.page-Main_Page .mw-body-content {
 
     #banner p {
       font-size: .75rem;
-  }
+    }
 }
 
 EOL
