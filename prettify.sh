@@ -542,6 +542,7 @@ cat > custom/ddos.less << EOL
 
 .mw-parser-output table td {
     padding: .25rem 0 !important;
+    word-break: break-word !important;
 }
 
 @media (max-width: 640px) {
