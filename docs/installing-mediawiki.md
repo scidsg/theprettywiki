@@ -21,6 +21,8 @@ To summarize, this command downloads the install-mediawiki.sh script from the sp
 
 ### Update The System
 
+This is the first block of the install-mediawiki.sh script. It starts with a shebang (#!/bin/bash) line, followed by a series of commands to update the system. Let's go through each line:
+
 ```
 #!/bin/bash
 
@@ -29,8 +31,6 @@ sudo apt update
 sudo apt -y dist-upgrade
 sudo apt -y autoremove
 ```
-
-This is the first block of the install-mediawiki.sh script. It starts with a shebang (#!/bin/bash) line, followed by a series of commands to update the system. Let's go through each line:
 
 1. #!/bin/bash: This is called a shebang or a hashbang. It is used to specify which interpreter should be used to run the script. In this case, the script is intended to be executed by the bash shell.
 2. sudo apt update: This command updates the package lists for all repositories and PPAs configured on the system. sudo is used to execute the command with root privileges, apt is the package management tool, and update is the operation performed by apt.
