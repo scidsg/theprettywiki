@@ -47,9 +47,9 @@ sudo a2dissite 000-default
 sudo systemctl restart apache2
 
 # Get user input using whiptail
-db_name=$(whiptail --inputbox "Please enter your desired database name for MediaWiki:" 8 78 --title "Database Name" 3>&1 1>&2 2>&3)
-db_user=$(whiptail --inputbox "Please enter your desired database username for MediaWiki:" 8 78 --title "Database Username" 3>&1 1>&2 2>&3)
-db_pass=$(whiptail --passwordbox "Please enter your desired database password for MediaWiki:" 8 78 --title "Database Password" 3>&1 1>&2 2>&3)
+db_name=$(whiptail --inputbox "\nPlease enter your desired database name for MediaWiki:" 8 78 "wikidb" --title "Database Name" 3>&1 1>&2 2>&3)
+db_user=$(whiptail --inputbox "\nPlease enter your desired database username for MediaWiki:" 8 78 "wikiuser" --title "Database Username" 3>&1 1>&2 2>&3)
+db_pass=$(whiptail --passwordbox "\nPlease enter your desired database password for MediaWiki:" 8 78 --title "Database Password" 3>&1 1>&2 2>&3)
 
 # Create the database and user
 sudo mysql -e "CREATE DATABASE \`${db_name}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
