@@ -1182,6 +1182,14 @@ body.page-Main_Page .mw-body-content {
     #custom-homepage .columnGroup {
         flex-direction: column;
     }
+
+    body.page-Main_Page .mw-header {
+      padding-bottom: 0;
+    }
+
+    body.page-Main_Page .vector-body {
+        padding-top: 0;
+    }
 }
 
 @media (max-width: 480px) {
