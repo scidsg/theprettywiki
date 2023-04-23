@@ -144,6 +144,7 @@ body {
   display: flex;
   justify-self: stretch;
   justify-content: space-between;
+  z-index: inherit !important;
 }
 
 .mw-body h1, .mw-body-content h1 {
@@ -1190,7 +1191,12 @@ body.page-Main_Page .mw-body-content {
     .dropdown-list {
         right: 1.25rem;
     }
+
+    #banner p {
+      font-size: .75rem;
+  }
 }
+
 EOL
 
 # Append LocalSettings
