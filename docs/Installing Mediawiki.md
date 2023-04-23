@@ -1,5 +1,9 @@
 # Installing Mediawiki
 
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/install-mediawiki.sh | bash
+```
+
 ## Introduction
 
 This article explains a bash script that helps you install and set up MediaWiki on your system. MediaWiki is a popular open-source wiki platform, commonly used for creating and managing websites like Wikipedia. The script automates the process of installing necessary packages, downloading the latest version of MediaWiki, and configuring a web server to host it.
