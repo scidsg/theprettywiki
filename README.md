@@ -56,7 +56,7 @@ Clear your cache or open a new Incognito or Private window, then load the page a
 
 ![Screen Shot 2023-04-19 at 20 27 1](https://user-images.githubusercontent.com/28545431/233251029-3950ae39-9fcf-4537-939d-ebf0c9bc46b5.png)
 
-### Step 5 (optional): Make a Hidden Wiki
+### Step 4 (optional): Make a Hidden Wiki
 You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your site private.
 
 ```
