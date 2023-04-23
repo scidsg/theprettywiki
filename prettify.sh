@@ -82,6 +82,7 @@ cat > skin.less << EOL
 
         // Custom Styles
         @import './custom/custom.less';
+        @import './custom/ddos.less';
 }
 
 @media all {
@@ -175,6 +176,7 @@ h1, h2 {
 
 .vector-body {
   font-size: 1rem;
+  padding-top: .5rem;
 }
 
 .mw-content-ltr ul {
@@ -493,6 +495,67 @@ a.extiw:visited, .mw-parser-output a.external:visited {
     font-size: 2rem;
   }
 }
+
+EOL
+
+# DDoSecrets-specific styles
+cat > custom/ddos.less << EOL
+.mw-parser-output table {
+  width: 300px !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;;
+  color: #333 !important;
+  border-radius: .25rem !important;
+  padding-bottom: 1rem;
+} 
+  
+.mw-parser-output table, 
+.mw-parser-output table th,
+.mw-parser-output table tr,
+.mw-parser-output table td {
+    background: #f2f2f2 !important;
+    color: #333 !important;
+    border: 0px !important;
+    padding: .625rem 1rem !important;
+    text-align: left !important;;
+}
+ 
+.mw-parser-output table {
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    border-collapse: inherit !important;
+    margin-left: 1.5rem !important;
+}
+  
+.mw-parser-output table th {
+    font-family: 'Serif', serif;
+    padding: 1rem 0 .5rem 0 !important;
+}
+  
+.mw-parser-output table tr:first-of-type th {
+    font-family: 'Serif', serif;
+    padding: .5rem 0 !important;
+}
+
+.mw-parser-output table th a {
+    font-size: .75rem;
+    font-weight: normal;
+}
+
+.mw-parser-output table td {
+    padding: .25rem 0 !important;
+}
+
+@media (max-width: 640px) {
+  .mw-parser-output table {
+    width: 33% !important;
+  } 
+} 
+
+@media (max-width: 480px) {
+  .mw-parser-output table {
+    width: 100% !important;
+    margin-left: 0 !important;
+  } 
+}  
 
 EOL
 
@@ -979,7 +1042,7 @@ body.page-Main_Page .mw-content-container {
     justify-content: center;
     margin-bottom: 1rem;
     justify-content: flex-start;
-    max-width: 100%;
+    max-width: calc(100% + 1.5rem);
 }
 
 .category-filters ul {
@@ -989,6 +1052,7 @@ body.page-Main_Page .mw-content-container {
     padding: 1rem 0;
     margin: 0 !important;
     overflow-x: auto;
+    padding-right: 1.5rem;
 }
 
 .category-filters ul li {
@@ -1026,7 +1090,7 @@ body.page-Main_Page .mw-content-container {
     height: 240px;
     overflow: scroll;
     top: 3rem;
-    right: 0;
+    right: 1.5rem;
 }
 
 .dropdown-list li {
@@ -1114,6 +1178,16 @@ body.page-Main_Page .mw-body-content {
 @media (max-width: 768px) {
     #custom-homepage .columnGroup {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-filters {
+        max-width: calc(100% + 1.25rem);
+    }
+
+    .dropdown-list {
+        right: 1.25rem;
     }
 }
 EOL
