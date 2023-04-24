@@ -8,7 +8,7 @@ cat << "EOF"
 ██  ██  ██ ██      ██   ██ ██ ██   ██ ██ ███ ██ ██ ██  ██  ██ 
 ██      ██ ███████ ██████  ██ ██   ██  ███ ███  ██ ██   ██ ██ 
                                                               
-Easily deploy your own Mediawiki instance.
+📖 Easily deploy your own Mediawiki instance.
                                                             
 https://thepretty.wiki
 https://try.thepretty.wiki

@@ -8,7 +8,7 @@ cat << "EOF"
 ██      ██   ██ ██         ██       ██    ██ ██         ██    
 ██      ██   ██ ███████    ██       ██    ██ ██         ██    
                                                               
-The Pretty Wiki is a free self-hosted publishing platform that makes owning your creative content a no brainer.
+😍 A custom homepage and global accessibility and visual design improvements.
                                                             
 https://thepretty.wiki
 https://try.thepretty.wiki
