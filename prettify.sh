@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Welcome message and ASCII art
+cat << "EOF"
+████████ ██   ██ ███████     ██████  ██████  ███████ ████████ ████████ ██    ██     ██     ██ ██ ██   ██ ██ 
+   ██    ██   ██ ██          ██   ██ ██   ██ ██         ██       ██     ██  ██      ██     ██ ██ ██  ██  ██ 
+   ██    ███████ █████       ██████  ██████  █████      ██       ██      ████       ██  █  ██ ██ █████   ██ 
+   ██    ██   ██ ██          ██      ██   ██ ██         ██       ██       ██        ██ ███ ██ ██ ██  ██  ██ 
+   ██    ██   ██ ███████     ██      ██   ██ ███████    ██       ██       ██         ███ ███  ██ ██   ██ ██ 
+                                                                                                            
+The Pretty Wiki is a free self-hosted publishing platform that makes owning your creative content a no brainer.
+                                                            
+https://thepretty.wiki
+https://try.thepretty.wiki
+
+EOF
+sleep 3
+
 # Download Science & Design brand resources
 cd /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/
 mkdir custom
