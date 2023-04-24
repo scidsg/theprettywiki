@@ -2,12 +2,12 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
-████████ ██   ██ ███████     ██████  ██████  ███████ ████████ ████████ ██    ██     ██     ██ ██ ██   ██ ██ 
-   ██    ██   ██ ██          ██   ██ ██   ██ ██         ██       ██     ██  ██      ██     ██ ██ ██  ██  ██ 
-   ██    ███████ █████       ██████  ██████  █████      ██       ██      ████       ██  █  ██ ██ █████   ██ 
-   ██    ██   ██ ██          ██      ██   ██ ██         ██       ██       ██        ██ ███ ██ ██ ██  ██  ██ 
-   ██    ██   ██ ███████     ██      ██   ██ ███████    ██       ██       ██         ███ ███  ██ ██   ██ ██ 
-                                                                                                            
+██████  ██████  ███████ ████████ ████████ ██ ███████ ██    ██ 
+██   ██ ██   ██ ██         ██       ██    ██ ██       ██  ██  
+██████  ██████  █████      ██       ██    ██ █████     ████   
+██      ██   ██ ██         ██       ██    ██ ██         ██    
+██      ██   ██ ███████    ██       ██    ██ ██         ██    
+                                                              
 The Pretty Wiki is a free self-hosted publishing platform that makes owning your creative content a no brainer.
                                                             
 https://thepretty.wiki
@@ -68,14 +68,12 @@ cd Vector/resources/skins.vector.styles/
 mv skin.less old-skin.less
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/skin.less
 
-
-# Create custom styles
+# Download skin files
 cd custom/
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/custom.less
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/ddos.less
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.css
-
-# Create custom homepage
+wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.js
 cd /var/www/html/mediawiki/extensions/
 wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.php
 
