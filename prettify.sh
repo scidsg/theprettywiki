@@ -611,7 +611,6 @@ function onMediaWikiPerformAction($output, $article, $title, $user, $request, $m
 </div>
 HTML;
         $output->addHTML($content);
-        // Prevent further processing
         $mediaWiki->restInPeace();
         return false;
     }
@@ -742,14 +741,12 @@ async function fetchRecentlyEditedArticles(existingTitles) {
 }
 
 async function fetchHomepageContent() {
-    // Call generateCategoryFilterList before fetching articles
     generateCategoryFilterList();
 
     const recentArticlesPromise = fetchRecentArticles(new Set());
     const recentlyEditedArticlesPromise = fetchRecentlyEditedArticles(new Set());
     const featuredArticlesPromise = fetchFeaturedArticles();
 
-    // Await the promises to ensure that recentArticles is defined
     await Promise.all([
         recentArticlesPromise,
         recentlyEditedArticlesPromise,
@@ -760,7 +757,7 @@ async function fetchHomepageContent() {
 async function fetchTopCategories(limit = 3) {
     try {
         const response = await fetch(
-            `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=descending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5&gaclimit=${limit}`
+            `${apiEndpoint}?action=query&format=json&generator=allcategories&gacnamespace=14&gacdir=ascending&gacminsize=1&gacprop=size&prop=info&inprop=displaytitle&formatversion=2&origin=*&gacminsize=5&gaclimit=${limit}`
         );
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -780,7 +777,7 @@ async function fetchTopCategories(limit = 3) {
                 });
             }
         }
-        return topCategories;
+        return topCategories.reverse();
     } catch (error) {
         console.error('Error fetching top categories:', error);
         return [];
@@ -802,11 +799,8 @@ async function fetchAllCategories() {
         }
         const categories = data.query.allcategories;
 
-        // Add this console.log statement
-        console.log("Fetched all categories:", categories);
-
         return categories.map((category) => {
-            return { title: category.category }; // Change this line
+            return { title: category.category };
         });
 
     } catch (error) {
@@ -956,17 +950,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const banner = document.getElementById('banner');
     const body = document.querySelector('body');
 
-    console.log('DOMContentLoaded'); // Debug log
-
     if (banner) {
         body.classList.add('banner-present');
 
-        console.log('Banner found'); // Debug log
-
         closeBannerBtn.addEventListener('click', function() {
-            console.log('Close button clicked'); // Debug log
             banner.style.display = 'none';
-            // Remove the banner-present class from the body
             body.classList.remove('banner-present');
         });
     }
@@ -1090,7 +1078,7 @@ body.page-Main_Page .mw-content-container {
     width: fit-content;
     max-width: 300px;
     position: absolute;
-    height: 240px;
+    height: 300px;
     overflow: scroll;
     top: 3rem;
     right: 1.5rem;
@@ -1103,7 +1091,7 @@ body.page-Main_Page .mw-content-container {
 
 .dropdown-list a {
     display: block;
-    padding: .5rem 1rem !important;
+    padding: .75rem 1rem !important;
 }
 
 .dropdown-list a.active {
