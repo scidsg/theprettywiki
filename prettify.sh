@@ -810,15 +810,10 @@ async function fetchAllCategories() {
 }
 
 async function generateCategoryFilterList() {
-    console.log('Generating category filter list...');
     const topCategories = await fetchTopCategories();
     const allCategories = await fetchAllCategories();
 
-    console.log("Top categories:", topCategories);
-    console.log("All categories:", allCategories);
-
     const categoryFilters = document.querySelector(".category-filters");
-    console.log("Category Filters:", categoryFilters);
     const filterList = document.createElement("ul");
 
     const allItem = document.createElement("li");
@@ -845,8 +840,6 @@ async function generateCategoryFilterList() {
         listItem.innerHTML = `<a href="#" data-category="${categoryTitle}">${categoryTitle.replace("Category:", "")}</a>`;
         dropdownList.appendChild(listItem);
     }
-
-    console.log("Dropdown list:", dropdownList);
 
     categoryFilters.appendChild(filterList);
     categoryFilters.appendChild(dropdownList);
@@ -939,7 +932,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     menuLinks.forEach(link => {
         link.addEventListener('click', function() {
-            console.log('Category link clicked');
             menu.classList.remove('show');
         });
     });
@@ -1193,7 +1185,6 @@ body.page-Main_Page .mw-body-content {
       font-size: .75rem;
     }
 }
-
 EOL
 
 # Append LocalSettings
