@@ -6,7 +6,7 @@ function truncateText(text, maxLength) {
 
 async function fetchArticleSnippet(title) {
     const response = await fetch(
-        `${apiEndpoint}?action=query&format=json&prop=extracts|info|pageimages&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&pithumbsize=768&formatversion=2&origin=*`
+        `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
     );
     const data = await response.json();
     const pages = data.query.pages;
@@ -14,23 +14,6 @@ async function fetchArticleSnippet(title) {
     const created = pageInfo.created ? new Date(pageInfo.created) : null;
     const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
     const fullText = pageInfo.extract;
-    const images = pageInfo.images;
-
-    let firstImage = null;
-    if (images && images.length > 0) {
-        // fetch image info for the first image
-        const imgTitle = images[0].title;
-        const imgResponse = await fetch(
-            `${apiEndpoint}?action=query&format=json&prop=imageinfo&iiprop=url&titles=${encodeURIComponent(imgTitle)}&formatversion=2&origin=*`
-        );
-        const imgData = await imgResponse.json();
-        const imgPages = imgData.query.pages;
-        const imgInfo = imgPages[0].imageinfo;
-        if (imgInfo && imgInfo.length > 0) {
-            firstImage = imgInfo[0].url;
-        }
-    }
-
     if (!fullText) {
         console.warn(`No extract found for ${title}`);
         return {
@@ -39,22 +22,21 @@ async function fetchArticleSnippet(title) {
             created: created,
             lastModified: lastModified,
             url: pageInfo.fullurl,
-            imageUrl: firstImage,
         };
     }
     const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
-    const firstRelevantParagraph = paragraphs[0] || '';
+    const firstRelevantParagraph = paragraphs.find(paragraph => paragraph.trim().length > 0) || '';
+    
     return {
         title: pageInfo.title,
         firstSentence: truncateText(firstRelevantParagraph, 150),
         created: created,
         lastModified: lastModified,
         url: pageInfo.fullurl,
-        thumbnail: pageInfo.thumbnail ? pageInfo.thumbnail.source : '',
     };
 }
 
-async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10, shouldShowImages = false) {
+async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10) {
     let addedArticles = 0;
     for (const article of articles) {
         const articleId = generateArticleId(article.title);
@@ -72,12 +54,10 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
             `First published: ${snippet.firstPublished.toLocaleDateString()}` :
             "Unknown";
         listItem.innerHTML = `
-    ${shouldShowImages && snippet.thumbnail ? `<img src="${snippet.thumbnail}" alt="${snippet.title}">` : ''}
-    <h3><a href="${snippet.url}">${snippet.title}</a></h3>
-    <small>${displayDate}</small>
-    <p>${snippet.firstSentence}</p>
-    `;
-
+<h3><a href="${snippet.url}">${snippet.title}</a></h3>
+<small>${displayDate}</small>
+<p>${snippet.firstSentence}</p>
+`;
         listElement.appendChild(listItem);
         existingIds.add(articleId);
         addedArticles++;
@@ -105,7 +85,7 @@ async function fetchFeaturedArticles() {
 
     const featuredArticlesList = document.querySelector("#featured-articles ul");
     const existingIds = new Set();
-    await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10, true);
+    await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
 }
 
 function generateArticleId(title) {

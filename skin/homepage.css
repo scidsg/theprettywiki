@@ -161,6 +161,8 @@ body.page-Main_Page .mw-content-container {
 
 .column h3 {
     margin-bottom: .5rem;
+    font-family: 'Serif', serif;
+    line-height: 1.5;
 }
 
 .column h3+small {
@@ -206,8 +208,30 @@ body.page-Main_Page .mw-body-content {
     margin-top: 0;
 }
 
+body.page-Main_Page .vector-body .column:not(:first-of-type) h3 {
+    font-size: 1.25rem;
+}
+
+body.page-Main_Page .vector-body .column:not(:first-of-type) p {
+    font-size: .875rem;
+}
+
+body.page-Main_Page .vector-body .column:not(:first-of-type) small {
+    font-size: .825rem;
+}
+
 .mw-header #mw-sidebar-button {
     display: none;
+}
+
+@media (max-width: 960px) {
+    .columnGroup {
+        gap: 1.5rem;
+    }
+
+    .column h2 {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -225,6 +249,22 @@ body.page-Main_Page .mw-body-content {
 
     .column ul li {
         max-width: 100% !important;
+    }
+
+    body.page-Main_Page .vector-body .column:not(:first-of-type) h3 {
+        font-size: 1.5rem;
+    }
+
+    body.page-Main_Page .vector-body .column:not(:first-of-type) p {
+        font-size: 1rem;
+    }
+
+    body.page-Main_Page .vector-body .column:not(:first-of-type) small {
+        font-size: .875rem;
+    }
+
+    .column h2 {
+        font-size: 1.125rem;
     }
 }
 
