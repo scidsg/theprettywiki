@@ -25,7 +25,11 @@ async function fetchArticleSnippet(title) {
         };
     }
     const paragraphs = fullText.split('\n').filter(paragraph => !paragraph.match(/Template:/));
-    const firstRelevantParagraph = paragraphs.find(paragraph => paragraph.trim().length > 0) || '';
+
+    // Remove section headers
+    const cleanedParagraphs = paragraphs.map(paragraph => paragraph.replace(/==(.*)==/, '').trim());
+
+    const firstRelevantParagraph = cleanedParagraphs.find(paragraph => paragraph.length > 0) || '';
     
     return {
         title: pageInfo.title,
