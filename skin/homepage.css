@@ -150,6 +150,10 @@ body.page-Main_Page .mw-content-container {
     max-width: 100%;
 }
 
+.column:first-of-type {
+    flex-grow: 2;
+}
+
 .column h2 {
     margin-bottom: 1rem;
     font-size: 1.125rem;
@@ -176,6 +180,12 @@ body.page-Main_Page .mw-content-container {
 .column li {
     margin-bottom: 5px;
     list-style: none;
+}
+
+.column li img {
+    max-width: 100%;
+    margin-top: 1rem;
+    border-radius: .25rem;
 }
 
 body.page-Main_Page .vector-article-toolbar {
@@ -211,6 +221,10 @@ body.page-Main_Page .mw-body-content {
 
     body.page-Main_Page .vector-body {
         padding-top: 0;
+    }
+
+    .column ul li {
+        max-width: 100% !important;
     }
 }
 
