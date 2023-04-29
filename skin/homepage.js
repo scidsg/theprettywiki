@@ -6,7 +6,7 @@ function truncateText(text, maxLength) {
 
 async function fetchArticleSnippet(title) {
     const response = await fetch(
-        `${apiEndpoint}?action=query&format=json&prop=extracts|info&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&formatversion=2&origin=*`
+        `${apiEndpoint}?action=query&format=json&prop=extracts|info|pageimages&titles=${encodeURIComponent(title)}&exsections=0&explaintext=1&inprop=url|displaytitle|created|touched|modified&piprop=original&formatversion=2&origin=*`
     );
     const data = await response.json();
     const pages = data.query.pages;
@@ -14,6 +14,8 @@ async function fetchArticleSnippet(title) {
     const created = pageInfo.created ? new Date(pageInfo.created) : null;
     const lastModified = pageInfo.touched ? new Date(pageInfo.touched) : null;
     const fullText = pageInfo.extract;
+    const imageUrl = pageInfo.original ? pageInfo.original.source : null;
+
     if (!fullText) {
         console.warn(`No extract found for ${title}`);
         return {
@@ -37,10 +39,11 @@ async function fetchArticleSnippet(title) {
         created: created,
         lastModified: lastModified,
         url: pageInfo.fullurl,
+        imageUrl: imageUrl,
     };
 }
 
-async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10) {
+async function populateArticleList(listElement, articles, existingIds = new Set(), limit = 10, includeImages = false) {
     let addedArticles = 0;
     for (const article of articles) {
         const articleId = generateArticleId(article.title);
@@ -58,10 +61,12 @@ async function populateArticleList(listElement, articles, existingIds = new Set(
             `First published: ${snippet.firstPublished.toLocaleDateString()}` :
             "Unknown";
         listItem.innerHTML = `
+${includeImages && snippet.imageUrl ? `<div class="img-container"><img src="${snippet.imageUrl}" alt="${snippet.title}"></div>` : ''}
 <h3><a href="${snippet.url}">${snippet.title}</a></h3>
 <small>${displayDate}</small>
 <p>${snippet.firstSentence}</p>
 `;
+
         listElement.appendChild(listItem);
         existingIds.add(articleId);
         addedArticles++;
@@ -87,9 +92,11 @@ async function fetchFeaturedArticles() {
         .split("\n")
         .filter((title) => title.trim().length > 0);
 
+    const featuredArticleObjects = featuredArticleTitles.map(title => ({ title: title }));
+
     const featuredArticlesList = document.querySelector("#featured-articles ul");
     const existingIds = new Set();
-    await populateArticleList(featuredArticlesList, featuredArticleTitles.map(title => ({ title })), existingIds, 10);
+    await populateArticleList(featuredArticlesList, featuredArticleObjects, existingIds, 5, true);
 }
 
 function generateArticleId(title) {
