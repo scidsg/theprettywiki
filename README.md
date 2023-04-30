@@ -1,6 +1,6 @@
 # The Pretty Wiki
 
-The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It includes a new homepage and accessibility improvements from the guidelines published by Digitial.gov. Additionally, our body typeface is from the Braille Institute, called Atkinson Hyperlegible, a font made to be legible for people with low vision.
+The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It includes a new homepage and accessibility improvements from the guidelines published by Digitial.gov. Additionally, our body typeface, Atkinson Hyperlegible, is from created by the Braille Institute and made to be legible for people with low vision.
 
 These simple style changes will transform your Wiki experience.
 
