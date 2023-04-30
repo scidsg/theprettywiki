@@ -217,6 +217,23 @@ body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
     font-size: 2rem;
 }
 
+body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ h3 {
+    text-align: center;
+}
+
+body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ p {
+    text-align: center;
+}
+
+body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ small {
+    text-align: center;
+    margin: .5rem 0;
+}
+
+body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ small {
+    display: block;
+}
+
 body.page-Main_Page .vector-body .column:not(:first-of-type) h3 {
     font-size: 1.25rem;
 }
