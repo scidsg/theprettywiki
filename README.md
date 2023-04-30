@@ -7,9 +7,7 @@
 
 [🌎 Public Site](https://thepretty.wiki)
 
-------
-
-![wiki-cover](https://user-images.githubusercontent.com/28545431/235376998-1765a758-3997-4624-8149-53f2b11e8ede.png)
+![wiki-cover](https://user-images.githubusercontent.com/28545431/235380727-52cdb8b3-800e-4241-a5a6-5537b6a51c7a.png)
 
 The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It includes accessibility guidelines from https://accessibility.digital.gov/visual-design/typography/ :
 
