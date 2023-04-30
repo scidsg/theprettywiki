@@ -51,6 +51,15 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify
 
 Clear your cache or open a new Incognito or Private window, then load the page again. 
 
+## Optional Steps
+
+### Create Backups
+You can easily create daily encrypted backups of your database by executing:
+
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/encrypted-mysql-backups.sh | bash
+```
+
 ### Update The Pretty Wiki
 To update your wiki, just run:
 
