@@ -74,7 +74,7 @@ body.page-Main_Page .mw-content-container {
     display: flex;
     flex-wrap: nowrap;
     list-style-type: none;
-    padding: 1rem 0;
+    padding: 1rem 0 .5rem 0;
     margin: 0 !important;
     overflow-x: auto;
     padding-right: 1.5rem;
