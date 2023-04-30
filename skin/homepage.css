@@ -216,6 +216,11 @@ body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
     padding-top: 0.5rem;
     font-size: 2.5rem;
     line-height: 1.4;
+    font-family: 'Serif Light', serif;
+}
+
+body.page-Main_Page .vector-body .column:last-of-type h3 {
+    font-size: 1rem !important;
 }
 
 body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ h3 {
@@ -300,7 +305,7 @@ body.page-Main_Page .vector-body .column .img-container {
     }
 
     body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
 }
 
@@ -331,6 +336,10 @@ body.page-Main_Page .vector-body .column .img-container {
 
     body.page-Main_Page .vector-body .column:not(:first-of-type) small {
         font-size: .875rem;
+    }
+
+    body.page-Main_Page .vector-body .column:last-of-type h3 {
+        font-size: 1.5rem !important; 
     }
 
     .column h2 {
