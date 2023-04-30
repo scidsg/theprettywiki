@@ -35,7 +35,7 @@ async function fetchArticleSnippet(title) {
     
     return {
         title: pageInfo.title,
-        firstSentence: truncateText(firstRelevantParagraph, 150),
+        firstSentence: truncateText(firstRelevantParagraph, 125),
         created: created,
         lastModified: lastModified,
         url: pageInfo.fullurl,
