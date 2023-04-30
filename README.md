@@ -7,15 +7,7 @@
 
 ![wiki-cover](https://user-images.githubusercontent.com/28545431/235380727-52cdb8b3-800e-4241-a5a6-5537b6a51c7a.png)
 
-The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It includes accessibility guidelines from https://accessibility.digital.gov/visual-design/typography/ :
-
-- Use a large enough font size for body text so that people can comfortably read. 
-- Maintain a line length that promotes comfortable reading.
-- Choose a typeface that emphasizes clarity and legibility.
-
-Additionally, our body typeface is from the Braille Institute, called Atkinson Hyperlegible, a font made to be legible for people with low vision. Headings use Merriweather, a font designed to be pleasant to read on screens. It features a very large x-height, slightly condensed letterforms, mild diagonal stress, sturdy serifs, and open forms.
-
-Our paragraphs are easier to read with its max-width set to 640px, font-size 1rem/16px, and line-height 1.6. Headings use a higher contrast type-scale, and a few additional stylistic modifications. 
+The Pretty Wiki builds on top of Mediawiki's Vector 2022 skin. It includes a new homepage and accessibility improvements from the guidelines published by Digitial.gov. Additionally, our body typeface is from the Braille Institute, called Atkinson Hyperlegible, a font made to be legible for people with low vision.
 
 These simple style changes will transform your Wiki experience.
 
