@@ -308,9 +308,23 @@ body.page-Main_Page .vector-body .column .img-container {
     }
 }
 
+@media (max-width: 640px) {
+    body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container:first-of-type {
+        padding-top: .5rem;
+    }
+}
+
 @media (max-width: 480px) {
     .category-filters {
         max-width: calc(100% + 1.25rem);
+    }
+
+    body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container:first-of-type {
+        padding-top: .25rem;
+    }
+
+    body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
+        font-size: 1.75rem;
     }
 
     .dropdown-list {
