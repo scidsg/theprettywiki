@@ -3,8 +3,6 @@
 ## Links
 [🧑‍💻 Try The Pretty Wiki](https://try.thepretty.wiki)
 
-[📖 Documentation](https://github.com/scidsg/the-pretty-wiki/tree/main/docs)
-
 [🌎 Public Site](https://thepretty.wiki)
 
 ![wiki-cover](https://user-images.githubusercontent.com/28545431/235380727-52cdb8b3-800e-4241-a5a6-5537b6a51c7a.png)
