@@ -214,11 +214,14 @@ body.page-Main_Page .vector-body .column:first-of-type h3 {
 
 body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
     padding-top: 0.5rem;
-    font-size: 2rem;
+    font-size: 2.5rem;
+    line-height: 1.4;
 }
 
 body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ h3 {
     text-align: center;
+    font-family: 'Serif Light', serif;
+    font-weight: initial;
 }
 
 body.page-Main_Page .vector-body .column:first-of-type li:first-of-type .img-container ~ p {
@@ -281,6 +284,12 @@ body.page-Main_Page .vector-body .column .img-container {
     object-fit: cover;
 }
 
+@media (max-width: 1280px) {
+    body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
+        font-size: 2.125rem;
+    }
+}
+
 @media (max-width: 960px) {
     .columnGroup {
         gap: 1.5rem;
@@ -288,6 +297,10 @@ body.page-Main_Page .vector-body .column .img-container {
 
     .column h2 {
         font-size: 1rem;
+    }
+
+    body.page-Main_Page .vector-body .column:first-of-type li:first-of-type h3 {
+        font-size: 2rem;
     }
 }
 
