@@ -36,9 +36,6 @@ You'll need to reuse your database credentials created during install.
 
 ### Step 2: Enable Your Wiki
  1. Complete the MediaWiki installation by visiting your server's IP address or domain name. When it's complete you'll download LocalSettings.php
-
-![232121037-8e7c720b-7148-4692-afca-04f209370dfd 1](https://user-images.githubusercontent.com/28545431/232261159-43984bda-076e-46bf-ba7c-6ba3eece6c81.png)
-
  2. Back in the Terminal, create a LocalSettings.php file and paste the downloaded contents:
  
  ```
@@ -54,9 +51,16 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify
 
 Clear your cache or open a new Incognito or Private window, then load the page again. 
 
-![Screen Shot 2023-04-19 at 20 27 1](https://user-images.githubusercontent.com/28545431/233251029-3950ae39-9fcf-4537-939d-ebf0c9bc46b5.png)
+### Update The Pretty Wiki
+To update your wiki, just run:
 
-### Step 4 (optional): Make a Hidden Wiki
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/update.sh | bash
+```
+
+Don't worry, previous versions of the updated files will be preserved.
+
+### Make a Hidden Wiki
 You can use a Tor onion service to make your wiki available without needing to purchase a new domain name, or if you want to keep your site private.
 
 ```
