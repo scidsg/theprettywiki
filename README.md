@@ -51,6 +51,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/prettify
 
 Clear your cache or open a new Incognito or Private window, then load the page again. 
 
+
 ## Optional Steps
 
 ### Create Backups
