@@ -2,31 +2,18 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
- ______    __                 
-/\__  _\  /\ \                
-\/_/\ \/  \ \ \___       __   
-   \ \ \   \ \  _ `\   /'__`\ 
-    \ \ \   \ \ \ \ \ /\  __/ 
-     \ \_\   \ \_\ \_\\ \____\
-      \/_/    \/_/\/_/ \/____/
- ____                    __       __                 
-/\  _`\                 /\ \__   /\ \__              
-\ \ \L\ \ _ __     __   \ \ ,_\  \ \ ,_\   __  __    
- \ \ ,__//\`'__\ /'__`\  \ \ \/   \ \ \/  /\ \/\ \   
-  \ \ \/ \ \ \/ /\  __/   \ \ \_   \ \ \_ \ \ \_\ \  
-   \ \_\  \ \_\ \ \____\   \ \__\   \ \__\ \/`____ \ 
-    \/_/   \/_/  \/____/    \/__/    \/__/  `/___/> \
- __      __            __                      /\___/              
-/\ \  __/\ \    __    /\ \         __          \/__/
-\ \ \/\ \ \ \  /\_\   \ \ \/'\    /\_\   
- \ \ \ \ \ \ \ \/\ \   \ \ , <    \/\ \  
-  \ \ \_/ \_\ \ \ \ \   \ \ \\`\   \ \ \ 
-   \ `\___x___/  \ \_\   \ \_\ \_\  \ \_\
-    '\/__//__/    \/_/    \/_/\/_/   \/_/
-                                         
-📖 Your personal publishing platform built for scale, accessibility, and usability.
+
+███    ███ ███████ ██████  ██  █████  ██     ██ ██ ██   ██ ██ 
+████  ████ ██      ██   ██ ██ ██   ██ ██     ██ ██ ██  ██  ██ 
+██ ████ ██ █████   ██   ██ ██ ███████ ██  █  ██ ██ █████   ██ 
+██  ██  ██ ██      ██   ██ ██ ██   ██ ██ ███ ██ ██ ██  ██  ██ 
+██      ██ ███████ ██████  ██ ██   ██  ███ ███  ██ ██   ██ ██ 
+                                                              
+📖 Easily deploy your own Mediawiki instance.
                                                             
 https://thepretty.wiki
+https://try.thepretty.wiki
+
 EOF
 sleep 3
 
@@ -103,91 +90,5 @@ sudo systemctl restart unattended-upgrades
 
 echo "Automatic updates have been installed and configured."
 
-SERVER_IP=$(curl -s ifconfig.me)
-WIDTH=$(tput cols)
-whiptail --msgbox --title "Instructions" "Now, enter $SERVER_IP in a web browser to continue setup, then come back here when you're done.\n\nWhen the MediaWiki setup is complete, press Enter to finish The Pretty Wiki installation." 14 $WIDTH
-
-# Download Science & Design brand resources
-cd /var/www/html/mediawiki/skins/Vector/resources/skins.vector.styles/
-mkdir custom
-cd custom/
-git clone https://github.com/scidsg/brand-resources.git
-mv brand-resources/fonts  .
-rm -r brand-resources/
-
-# Activate New Skin
-file="/var/www/html/mediawiki/LocalSettings.php"
-backup_file="/var/www/html/mediawiki/LocalSettings.php.bak"
-
-# Create a backup of the original file
-cd /var/www/html/mediawiki/
-cp "$file" "$backup_file"
-
-# Enable The Pretty Wiki
-sed -i 's/\$wgDefaultSkin = "vector";/\$wgDefaultSkin = "vector-2022";/g' "$file"
-
-# Mobile enablement and enhancements 
-echo "Adding viewport meta tag, theme-color, and favicons to LocalSettings.php..."
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/favicon.ico
-mkdir images/ images/favicon/
-cd images/favicon/
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/android-chrome-192x192.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/android-chrome-512x512.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/apple-touch-icon.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/favicon-16x16.png
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/images/favicon/favicon-32x32.png
-cat >> /var/www/html/mediawiki/LocalSettings.php << EOL
-\$wgHooks["BeforePageDisplay"][] = "addViewportMetaTag";
-function addViewportMetaTag( \$out, \$skin ) {
-    \$out->addHeadItem( "viewport", "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" );
-    \$out->addHeadItem( "theme-color", "<meta name=\"theme-color\" content=\"#333\">" );
-    \$out->addHeadItem( "apple-touch-icon", "<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/images/favicon/apple-touch-icon.png\">" );
-    \$out->addHeadItem( "favicon-32x32", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/favicon-32x32.png\" sizes=\"32x32\">" );
-    \$out->addHeadItem( "favicon-16x16", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/favicon-16x16.png\" sizes=\"16x16\">" );
-    \$out->addHeadItem( "android-chrome-192x192", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/android-chrome-192x192.png\" sizes=\"192x192\">" );
-    \$out->addHeadItem( "android-chrome-512x512", "<link rel=\"icon\" type=\"image/png\" href=\"/images/favicon/android-chrome-512x512.png\" sizes=\"512x512\">" );
-    return true;
-}
-EOL
-
-# Back up Vector Skin
-cd /var/www/html/mediawiki/skins
-cp -r Vector/ Vector-Backup/
-
-# Back up current less file
-cd Vector/resources/skins.vector.styles/
-mv skin.less old-skin.less
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/skin.less
-
-# Download skin files
-cd custom/
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/custom.less
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/ddos.less
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.css
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.js
-cd /var/www/html/mediawiki/extensions/
-wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage.php
-
-# Append LocalSettings
-cd /var/www/html/mediawiki
-echo 'require_once "$IP/extensions/homepage.php";' >> LocalSettings.php
-echo '$wgEnableAPI = true;' >> LocalSettings.php
-
-OPTION_ONION=$(whiptail --title "Onion Service" --menu "Would you like to make your wiki available as an Onion Service?" 15 60 4 \
-"1" "Yes" \
-"2" "No"  3>&1 1>&2 2>&3)
-
-exitstatus=$?
-if [ $exitstatus = 0 ]; then
-    echo "Your chosen option:" $OPTION_ONION
-    if [ $OPTION_ONION = "1" ]; then
-        curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/scripts/onion-service.sh | bash
-    elif [ $OPTION_ONION = "2" ]; then
-        echo "You can add an e-ink display at any time in the future by simply running: curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/scripts/onion-service.sh | bash"
-    fi
-else
-    echo "You chose Cancel."
-fi
-
 # Done
-echo "👍 The Pretty Wiki is now ready."
+echo "👍 MediaWiki has been installed. Please visit your URL or server's IP address to complete the setup."
