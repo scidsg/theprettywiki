@@ -2,18 +2,31 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
-
-███    ███ ███████ ██████  ██  █████  ██     ██ ██ ██   ██ ██ 
-████  ████ ██      ██   ██ ██ ██   ██ ██     ██ ██ ██  ██  ██ 
-██ ████ ██ █████   ██   ██ ██ ███████ ██  █  ██ ██ █████   ██ 
-██  ██  ██ ██      ██   ██ ██ ██   ██ ██ ███ ██ ██ ██  ██  ██ 
-██      ██ ███████ ██████  ██ ██   ██  ███ ███  ██ ██   ██ ██ 
-                                                              
-📖 Easily deploy your own Mediawiki instance.
+ ______    __                 
+/\__  _\  /\ \                
+\/_/\ \/  \ \ \___       __   
+   \ \ \   \ \  _ `\   /'__`\ 
+    \ \ \   \ \ \ \ \ /\  __/ 
+     \ \_\   \ \_\ \_\\ \____\
+      \/_/    \/_/\/_/ \/____/
+ ____                    __       __                 
+/\  _`\                 /\ \__   /\ \__              
+\ \ \L\ \ _ __     __   \ \ ,_\  \ \ ,_\   __  __    
+ \ \ ,__//\`'__\ /'__`\  \ \ \/   \ \ \/  /\ \/\ \   
+  \ \ \/ \ \ \/ /\  __/   \ \ \_   \ \ \_ \ \ \_\ \  
+   \ \_\  \ \_\ \ \____\   \ \__\   \ \__\ \/`____ \ 
+    \/_/   \/_/  \/____/    \/__/    \/__/  `/___/> \
+ __      __            __                      /\___/              
+/\ \  __/\ \    __    /\ \         __          \/__/
+\ \ \/\ \ \ \  /\_\   \ \ \/'\    /\_\   
+ \ \ \ \ \ \ \ \/\ \   \ \ , <    \/\ \  
+  \ \ \_/ \_\ \ \ \ \   \ \ \\`\   \ \ \ 
+   \ `\___x___/  \ \_\   \ \_\ \_\  \ \_\
+    '\/__//__/    \/_/    \/_/\/_/   \/_/
+                                         
+📖 Your personal publishing platform built for scale, accessibility, and usability.
                                                             
 https://thepretty.wiki
-https://try.thepretty.wiki
-
 EOF
 sleep 3
 
@@ -159,6 +172,22 @@ wget https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/skin/homepage
 cd /var/www/html/mediawiki
 echo 'require_once "$IP/extensions/homepage.php";' >> LocalSettings.php
 echo '$wgEnableAPI = true;' >> LocalSettings.php
+
+OPTION_ONION=$(whiptail --title "Onion Service" --menu "Would you like to make your wiki available as an Onion Service?" 15 60 4 \
+"1" "Yes" \
+"2" "No"  3>&1 1>&2 2>&3)
+
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+    echo "Your chosen option:" $OPTION_ONION
+    if [ $OPTION_ONION = "1" ]; then
+        curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/scripts/onion-service.sh | bash
+    elif [ $OPTION_ONION = "2" ]; then
+        echo "You can add an e-ink display at any time in the future by simply running: curl -sSL https://raw.githubusercontent.com/scidsg/the-pretty-wiki/main/scripts/onion-service.sh | bash"
+    fi
+else
+    echo "You chose Cancel."
+fi
 
 # Done
 echo "👍 The Pretty Wiki is now ready."
